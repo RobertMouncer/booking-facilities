@@ -1,8 +1,8 @@
 {
   "swagger": "2.0",
   "info": {
-    "description": "This API is used to confirm match bookings for the AberFitness ladder micro-service.",
-    "version": "1.0.0",
+    "description": "This API is used to confirm match bookings for the AberFitness Ladder micro-service.",
+    "version": "1.1.0",
     "title": "Booking-Facilities",
     "contact": {
       "name": "Robert",
@@ -21,7 +21,7 @@
         "tags": [
           "booking"
         ],
-        "summary": "Add a new match booking using bookings API.",
+        "summary": "Add a new match booking using Bookings API.",
         "operationId": "addBooking",
         "consumes": [
           "application/json"
@@ -49,6 +49,9 @@
           },
           "405": {
             "description": "Invalid input."
+          },
+          "409": {
+            "description": "Timeslot no longer available."
           }
         }
       }
@@ -75,7 +78,7 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation.",
+            "description": "Successful operation.",
             "schema": {
               "$ref": "#/definitions/Booking"
             }
@@ -131,6 +134,9 @@
           },
           "405": {
             "description": "Invalid input."
+          },
+          "409": {
+            "description": "Timeslot no longer available."
           }
         }
       },
@@ -166,7 +172,7 @@
         }
       }
     },
-    "/booking/getTimes/{dateTime}": {
+    "/booking/{dateTime}/{location}/{sport}": {
       "get": {
         "tags": [
           "booking"
@@ -180,14 +186,28 @@
           {
             "name": "dateTime",
             "in": "path",
-            "description": "date of requested booking.",
+            "description": "Date of requested booking.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "location",
+            "in": "path",
+            "description": "Location of requested booking.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "sport",
+            "in": "path",
+            "description": "Sport of requested booking.",
             "required": true,
             "type": "string"
           }
         ],
         "responses": {
           "200": {
-            "description": "successful operation.",
+            "description": "Successful operation.",
             "schema": {
               "type": "array",
               "items": {
@@ -210,11 +230,11 @@
     "Booking": {
       "type": "object",
       "required": [
+        "bookingId",
         "dateTime",
-        "venue",
-        "sport",
-        "courtName",
-        "userId"
+        "userId",
+        "facility",
+        "sport"
       ],
       "properties": {
         "bookingId": {
@@ -225,21 +245,70 @@
           "type": "string",
           "example": "2018/07/16 09:00:00"
         },
-        "venue": {
-          "type": "string",
-          "example": "The Old Sports Complex"
-        },
-        "sport": {
-          "type": "string",
-          "example": "Ice-sailing"
-        },
-        "courtName": {
-          "type": "string",
-          "example": "court 1"
-        },
         "userId": {
           "type": "integer",
           "format": "int64"
+        },
+        "facility": {
+          "$ref": "#/definitions/facility"
+        },
+        "sport": {
+          "$ref": "#/definitions/sport"
+        }
+      }
+    },
+    "facility": {
+      "type": "object",
+      "required": [
+        "facilityName",
+        "venue",
+        "facilityId"
+      ],
+      "properties": {
+        "facilityId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "facilityName": {
+          "type": "string",
+          "example": "Swimming Pool"
+        },
+        "venue": {
+          "$ref": "#/definitions/venue"
+        }
+      }
+    },
+    "venue": {
+      "type": "object",
+      "required": [
+        "venueName",
+        "venueId"
+      ],
+      "properties": {
+        "venueId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "venueName": {
+          "type": "string",
+          "example": "The Old Sports College"
+        }
+      }
+    },
+    "sport": {
+      "type": "object",
+      "required": [
+        "sportName",
+        "sportId"
+      ],
+      "properties": {
+        "sportId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "sportName": {
+          "type": "string",
+          "example": "Swimming"
         }
       }
     }
