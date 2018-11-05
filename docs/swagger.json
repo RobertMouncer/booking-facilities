@@ -11,15 +11,43 @@
   },
   "tags": [
     {
-      "name": "booking",
+      "name": "Status",
       "description": "Bookings CRUD operations."
+    },
+    {
+      "name": "Booking",
+      "description": "Bookings CRUD operations."
+    },
+    {
+      "name": "Factilities",
+      "description": "Operation for retrieving a list of available facilites"
     }
   ],
   "paths": {
+    "/status": {
+      "get": {
+        "tags": [
+          "Status"
+        ],
+        "summary": "Check status of the microservice.",
+        "operationId": "checkStatus",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation."
+          }
+        }
+      }
+    },
     "/booking": {
       "post": {
         "tags": [
-          "booking"
+          "Booking"
         ],
         "summary": "Add a new match booking using Bookings API.",
         "operationId": "addBooking",
@@ -59,7 +87,7 @@
     "/booking/{bookingId}": {
       "get": {
         "tags": [
-          "booking"
+          "Booking"
         ],
         "summary": "Get booking object.",
         "operationId": "getBooking",
@@ -93,7 +121,7 @@
       },
       "put": {
         "tags": [
-          "booking"
+          "Booking"
         ],
         "summary": "Update an existing booking.",
         "operationId": "updateBooking",
@@ -142,7 +170,7 @@
       },
       "delete": {
         "tags": [
-          "booking"
+          "Booking"
         ],
         "summary": "Deletes a booking.",
         "operationId": "deleteBooking",
@@ -175,7 +203,7 @@
     "/booking/{dateTime}/{location}/{sport}": {
       "get": {
         "tags": [
-          "booking"
+          "Booking"
         ],
         "summary": "Gets list of available times for the given day.",
         "operationId": "getTimesForDate",
@@ -220,6 +248,29 @@
           }
         }
       }
+    },
+    "/facilites": {
+      "get": {
+        "tags": [
+          "Factilities"
+        ],
+        "summary": "Retrieve all available facilities",
+        "operationId": "getFacilities",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/SportsFacilities"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -233,8 +284,7 @@
         "bookingId",
         "dateTime",
         "userId",
-        "facility",
-        "sport"
+        "sportsFacilities"
       ],
       "properties": {
         "bookingId": {
@@ -249,15 +299,12 @@
           "type": "integer",
           "format": "int64"
         },
-        "facility": {
-          "$ref": "#/definitions/facility"
-        },
-        "sport": {
-          "$ref": "#/definitions/sport"
+        "sportsFacilities": {
+          "$ref": "#/definitions/SportsFacilities"
         }
       }
     },
-    "facility": {
+    "Facility": {
       "type": "object",
       "required": [
         "facilityName",
@@ -274,11 +321,11 @@
           "example": "Swimming Pool"
         },
         "venue": {
-          "$ref": "#/definitions/venue"
+          "$ref": "#/definitions/Venue"
         }
       }
     },
-    "venue": {
+    "Venue": {
       "type": "object",
       "required": [
         "venueName",
@@ -295,7 +342,7 @@
         }
       }
     },
-    "sport": {
+    "Sport": {
       "type": "object",
       "required": [
         "sportName",
@@ -309,6 +356,26 @@
         "sportName": {
           "type": "string",
           "example": "Swimming"
+        }
+      }
+    },
+    "SportsFacilities": {
+      "type": "object",
+      "required": [
+        "SportsFacilityId",
+        "FacilityId",
+        "SportId"
+      ],
+      "properties": {
+        "SportsFacilityId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "FacilityId": {
+          "$ref": "#/definitions/Facility"
+        },
+        "SportId": {
+          "$ref": "#/definitions/Sport"
         }
       }
     }
