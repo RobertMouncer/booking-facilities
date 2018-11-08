@@ -1,8 +1,8 @@
 {
   "swagger": "2.0",
   "info": {
-    "description": "This API is used to confirm match bookings for the AberFitness ladder micro-service.",
-    "version": "1.0.0",
+    "description": "This API is used to confirm match bookings for the AberFitness Ladder micro-service.",
+    "version": "1.1.0",
     "title": "Booking-Facilities",
     "contact": {
       "name": "Robert",
@@ -11,17 +11,45 @@
   },
   "tags": [
     {
-      "name": "booking",
+      "name": "Status",
       "description": "Bookings CRUD operations."
+    },
+    {
+      "name": "Booking",
+      "description": "Bookings CRUD operations."
+    },
+    {
+      "name": "Factilities",
+      "description": "Operation for retrieving a list of available facilites"
     }
   ],
   "paths": {
+    "/status": {
+      "get": {
+        "tags": [
+          "Status"
+        ],
+        "summary": "Check status of the microservice.",
+        "operationId": "checkStatus",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation."
+          }
+        }
+      }
+    },
     "/booking": {
       "post": {
         "tags": [
-          "booking"
+          "Booking"
         ],
-        "summary": "Add a new match booking using bookings API.",
+        "summary": "Add a new match booking using Bookings API.",
         "operationId": "addBooking",
         "consumes": [
           "application/json"
@@ -49,6 +77,9 @@
           },
           "405": {
             "description": "Invalid input."
+          },
+          "409": {
+            "description": "Timeslot no longer available."
           }
         }
       }
@@ -56,7 +87,7 @@
     "/booking/{bookingId}": {
       "get": {
         "tags": [
-          "booking"
+          "Booking"
         ],
         "summary": "Get booking object.",
         "operationId": "getBooking",
@@ -75,7 +106,7 @@
         ],
         "responses": {
           "200": {
-            "description": "successful operation.",
+            "description": "Successful operation.",
             "schema": {
               "$ref": "#/definitions/Booking"
             }
@@ -90,7 +121,7 @@
       },
       "put": {
         "tags": [
-          "booking"
+          "Booking"
         ],
         "summary": "Update an existing booking.",
         "operationId": "updateBooking",
@@ -131,12 +162,15 @@
           },
           "405": {
             "description": "Invalid input."
+          },
+          "409": {
+            "description": "Timeslot no longer available."
           }
         }
       },
       "delete": {
         "tags": [
-          "booking"
+          "Booking"
         ],
         "summary": "Deletes a booking.",
         "operationId": "deleteBooking",
@@ -166,10 +200,10 @@
         }
       }
     },
-    "/booking/getTimes/{dateTime}": {
+    "/booking/{dateTime}/{location}/{sport}": {
       "get": {
         "tags": [
-          "booking"
+          "Booking"
         ],
         "summary": "Gets list of available times for the given day.",
         "operationId": "getTimesForDate",
@@ -180,14 +214,28 @@
           {
             "name": "dateTime",
             "in": "path",
-            "description": "date of requested booking.",
+            "description": "Date of requested booking.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "location",
+            "in": "path",
+            "description": "Location of requested booking.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "sport",
+            "in": "path",
+            "description": "Sport of requested booking.",
             "required": true,
             "type": "string"
           }
         ],
         "responses": {
           "200": {
-            "description": "successful operation.",
+            "description": "Successful operation.",
             "schema": {
               "type": "array",
               "items": {
@@ -197,6 +245,29 @@
           },
           "400": {
             "description": "Invalid dateTime supplied."
+          }
+        }
+      }
+    },
+    "/facilites": {
+      "get": {
+        "tags": [
+          "Factilities"
+        ],
+        "summary": "Retrieve all available facilities",
+        "operationId": "getFacilities",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/SportsFacilities"
+              }
+            }
           }
         }
       }
@@ -210,11 +281,10 @@
     "Booking": {
       "type": "object",
       "required": [
+        "bookingId",
         "dateTime",
-        "venue",
-        "sport",
-        "courtName",
-        "userId"
+        "userId",
+        "sportsFacilities"
       ],
       "properties": {
         "bookingId": {
@@ -225,21 +295,87 @@
           "type": "string",
           "example": "2018/07/16 09:00:00"
         },
-        "venue": {
-          "type": "string",
-          "example": "The Old Sports Complex"
-        },
-        "sport": {
-          "type": "string",
-          "example": "Ice-sailing"
-        },
-        "courtName": {
-          "type": "string",
-          "example": "court 1"
-        },
         "userId": {
           "type": "integer",
           "format": "int64"
+        },
+        "sportsFacilities": {
+          "$ref": "#/definitions/SportsFacilities"
+        }
+      }
+    },
+    "Facility": {
+      "type": "object",
+      "required": [
+        "facilityName",
+        "venue",
+        "facilityId"
+      ],
+      "properties": {
+        "facilityId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "facilityName": {
+          "type": "string",
+          "example": "Swimming Pool"
+        },
+        "venue": {
+          "$ref": "#/definitions/Venue"
+        }
+      }
+    },
+    "Venue": {
+      "type": "object",
+      "required": [
+        "venueName",
+        "venueId"
+      ],
+      "properties": {
+        "venueId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "venueName": {
+          "type": "string",
+          "example": "The Old Sports College"
+        }
+      }
+    },
+    "Sport": {
+      "type": "object",
+      "required": [
+        "sportName",
+        "sportId"
+      ],
+      "properties": {
+        "sportId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "sportName": {
+          "type": "string",
+          "example": "Swimming"
+        }
+      }
+    },
+    "SportsFacilities": {
+      "type": "object",
+      "required": [
+        "SportsFacilityId",
+        "FacilityId",
+        "SportId"
+      ],
+      "properties": {
+        "SportsFacilityId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "FacilityId": {
+          "$ref": "#/definitions/Facility"
+        },
+        "SportId": {
+          "$ref": "#/definitions/Sport"
         }
       }
     }
