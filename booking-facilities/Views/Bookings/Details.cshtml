@@ -1,0 +1,36 @@
+﻿@model booking_facilities.Models.Booking
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Booking</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Facility)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Facility.FacilityId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.BookingDateTime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BookingDateTime)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.UserId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.UserId)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.BookingId">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
