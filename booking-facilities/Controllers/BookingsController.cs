@@ -21,7 +21,7 @@ namespace booking_facilities.Controllers
         // GET: Bookings
         public async Task<IActionResult> Index()
         {
-            var booking_facilitiesContext = _context.Booking.Include(b => b.Facility);
+            var booking_facilitiesContext = _context.Booking.Include(b => b.Facility).Include(b => b.Facility.Venue);
             return View(await booking_facilitiesContext.ToListAsync());
         }
 
@@ -35,6 +35,7 @@ namespace booking_facilities.Controllers
 
             var booking = await _context.Booking
                 .Include(b => b.Facility)
+                .Include(b => b.Facility.Venue)
                 .FirstOrDefaultAsync(m => m.BookingId == id);
             if (booking == null)
             {
@@ -47,7 +48,8 @@ namespace booking_facilities.Controllers
         // GET: Bookings/Create
         public IActionResult Create()
         {
-            ViewData["FacilityId"] = new SelectList(_context.Facility, "FacilityId", "FacilityId");
+            ViewData["FacilityId"] = new SelectList(_context.Facility, "FacilityId", "FacilityName");
+            //ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
             return View();
         }
 
@@ -64,7 +66,7 @@ namespace booking_facilities.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FacilityId"] = new SelectList(_context.Facility, "FacilityId", "FacilityId", booking.FacilityId);
+            ViewData["FacilityId"] = new SelectList(_context.Facility, "FacilityId", "FacilityName", booking.FacilityId);
             return View(booking);
         }
 
@@ -81,7 +83,7 @@ namespace booking_facilities.Controllers
             {
                 return NotFound();
             }
-            ViewData["FacilityId"] = new SelectList(_context.Facility, "FacilityId", "FacilityId", booking.FacilityId);
+            ViewData["FacilityId"] = new SelectList(_context.Facility, "FacilityId", "FacilityName", booking.FacilityId);
             return View(booking);
         }
 
@@ -117,7 +119,7 @@ namespace booking_facilities.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FacilityId"] = new SelectList(_context.Facility, "FacilityId", "FacilityId", booking.FacilityId);
+            ViewData["FacilityId"] = new SelectList(_context.Facility, "FacilityId", "FacilityName", booking.FacilityId);
             return View(booking);
         }
 

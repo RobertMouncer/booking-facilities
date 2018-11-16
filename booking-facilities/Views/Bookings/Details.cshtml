@@ -14,7 +14,13 @@
             @Html.DisplayNameFor(model => model.Facility)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Facility.FacilityId)
+            @Html.DisplayFor(model => model.Facility.FacilityName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Facility.Venue)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Facility.Venue.VenueName)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.BookingDateTime)

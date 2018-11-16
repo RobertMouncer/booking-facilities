@@ -48,8 +48,8 @@ namespace booking_facilities.Controllers
         // GET: Facilities/Create
         public IActionResult Create()
         {
-            ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportId");
-            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueId");
+            ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportName");
+            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
             return View();
         }
 
@@ -66,8 +66,8 @@ namespace booking_facilities.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportId", facility.SportId);
-            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueId", facility.VenueId);
+            ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportName", facility.SportId);
+            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName", facility.VenueId);
             return View(facility);
         }
 
@@ -84,8 +84,8 @@ namespace booking_facilities.Controllers
             {
                 return NotFound();
             }
-            ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportId", facility.SportId);
-            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueId", facility.VenueId);
+            ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportName", facility.SportId);
+            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName", facility.VenueId);
             return View(facility);
         }
 
@@ -121,8 +121,8 @@ namespace booking_facilities.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportId", facility.SportId);
-            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueId", facility.VenueId);
+            ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportName", facility.SportId);
+            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName", facility.VenueId);
             return View(facility);
         }
 

@@ -8,6 +8,6 @@ namespace booking_facilities.Models
     public class Venue
     {
         public virtual int VenueId { get; set; }
-        public virtual int VenueName { get; set; }
+        public virtual String VenueName { get; set; }
     }
 }
