@@ -12,7 +12,6 @@ namespace booking_facilities.Models
         public virtual int BookingId { get; set; }
         [Required]
         public virtual int FacilityId { get; set; }
-        [Required]
         public virtual Facility Facility { get; set; }
         [Required]
         public virtual DateTime BookingDateTime { get; set; }
