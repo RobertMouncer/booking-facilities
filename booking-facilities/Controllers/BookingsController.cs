@@ -18,6 +18,7 @@ namespace booking_facilities.Controllers
             _context = context;
         }
 
+
         // GET: Bookings
         public async Task<IActionResult> Index()
         {
@@ -48,10 +49,12 @@ namespace booking_facilities.Controllers
         // GET: Bookings/Create
         public IActionResult Create()
         {
+            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
             ViewData["FacilityId"] = new SelectList(_context.Facility, "FacilityId", "FacilityName");
-            //ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
             return View();
         }
+        
+
 
         // POST: Bookings/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
