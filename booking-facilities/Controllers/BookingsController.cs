@@ -50,7 +50,6 @@ namespace booking_facilities.Controllers
         public IActionResult Create()
         {
             ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
-            ViewData["FacilityId"] = new SelectList(_context.Facility, "FacilityId", "FacilityName");
             return View();
         }
         

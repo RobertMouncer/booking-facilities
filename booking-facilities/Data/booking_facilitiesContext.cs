@@ -9,7 +9,7 @@ namespace booking_facilities.Models
 {
     public class booking_facilitiesContext : DbContext
     {
-        public booking_facilitiesContext (DbContextOptions<booking_facilitiesContext> options)
+        public booking_facilitiesContext(DbContextOptions<booking_facilitiesContext> options)
             : base(options)
         {
         }
@@ -21,5 +21,7 @@ namespace booking_facilities.Models
         public DbSet<booking_facilities.Models.Facility> Facility { get; set; }
 
         public DbSet<booking_facilities.Models.Booking> Booking { get; set; }
+
+        
     }
 }
