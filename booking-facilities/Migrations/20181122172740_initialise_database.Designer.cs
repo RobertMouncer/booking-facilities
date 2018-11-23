@@ -10,8 +10,8 @@ using booking_facilities.Models;
 namespace booking_facilities.Migrations
 {
     [DbContext(typeof(booking_facilitiesContext))]
-    [Migration("20181116152755_Initialise_all_models")]
-    partial class Initialise_all_models
+    [Migration("20181122172740_initialise_database")]
+    partial class initialise_database
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -46,7 +46,8 @@ namespace booking_facilities.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("FacilityName");
+                    b.Property<string>("FacilityName")
+                        .IsRequired();
 
                     b.Property<int>("SportId");
 
@@ -67,7 +68,8 @@ namespace booking_facilities.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("SportName");
+                    b.Property<string>("SportName")
+                        .IsRequired();
 
                     b.HasKey("SportId");
 
@@ -80,7 +82,8 @@ namespace booking_facilities.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("VenueName");
+                    b.Property<string>("VenueName")
+                        .IsRequired();
 
                     b.HasKey("VenueId");
 
