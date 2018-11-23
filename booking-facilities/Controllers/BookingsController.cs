@@ -64,9 +64,10 @@ namespace booking_facilities.Controllers
         {
             if (ModelState.IsValid)
             {
+
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FacilityId"] = new SelectList(_context.Facility, "VenueId", "VenueName");
+            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
             return View(booking);
         }
 

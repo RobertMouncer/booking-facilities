@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,7 +17,8 @@ namespace booking_facilities.Models
         public virtual Facility Facility { get; set; }
         [Required]
         [DisplayName("Booking Date")]
-        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:MM/dd/yyyy}")]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy}")]
+        [Column(TypeName = "date")]
         public virtual DateTime BookingDate { get; set; }
         [Required]
         [DisplayName("Booking Time")]
