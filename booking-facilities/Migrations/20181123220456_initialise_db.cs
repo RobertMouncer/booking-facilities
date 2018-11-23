@@ -14,7 +14,7 @@ namespace booking_facilities.Migrations
                 {
                     SportId = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    SportName = table.Column<string>(nullable: false)
+                    SportName = table.Column<string>(maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -27,7 +27,7 @@ namespace booking_facilities.Migrations
                 {
                     VenueId = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    VenueName = table.Column<string>(nullable: false)
+                    VenueName = table.Column<string>(maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -40,7 +40,7 @@ namespace booking_facilities.Migrations
                 {
                     FacilityId = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    FacilityName = table.Column<string>(nullable: false),
+                    FacilityName = table.Column<string>(maxLength: 50, nullable: false),
                     VenueId = table.Column<int>(nullable: false),
                     SportId = table.Column<int>(nullable: false)
                 },
@@ -68,7 +68,8 @@ namespace booking_facilities.Migrations
                     BookingId = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     FacilityId = table.Column<int>(nullable: false),
-                    BookingDateTime = table.Column<DateTime>(nullable: false),
+                    BookingDate = table.Column<DateTime>(nullable: false),
+                    BookingTime = table.Column<DateTime>(nullable: false),
                     UserId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>

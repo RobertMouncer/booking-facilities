@@ -22,7 +22,9 @@ namespace booking_facilities.Migrations
                     b.Property<int>("BookingId")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<DateTime>("BookingDateTime");
+                    b.Property<DateTime>("BookingDate");
+
+                    b.Property<DateTime>("BookingTime");
 
                     b.Property<int>("FacilityId");
 
@@ -41,7 +43,8 @@ namespace booking_facilities.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("FacilityName")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasMaxLength(50);
 
                     b.Property<int>("SportId");
 
@@ -62,7 +65,8 @@ namespace booking_facilities.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("SportName")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasMaxLength(50);
 
                     b.HasKey("SportId");
 
@@ -75,7 +79,8 @@ namespace booking_facilities.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("VenueName")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasMaxLength(50);
 
                     b.HasKey("VenueId");
 

@@ -16,7 +16,12 @@ namespace booking_facilities.Models
         public virtual Facility Facility { get; set; }
         [Required]
         [DisplayName("Booking Date")]
-        public virtual DateTime BookingDateTime { get; set; }
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:MM/dd/yyyy}")]
+        public virtual DateTime BookingDate { get; set; }
+        [Required]
+        [DisplayName("Booking Time")]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:hh:mm}")]
+        public virtual DateTime BookingTime { get; set; }
         [Required]
         public virtual int UserId { get; set; }
     }

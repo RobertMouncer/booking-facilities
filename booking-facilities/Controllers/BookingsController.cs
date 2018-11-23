@@ -60,15 +60,13 @@ namespace booking_facilities.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("BookingId,FacilityId,BookingDateTime,UserId")] Booking booking)
+        public IActionResult Create([Bind("BookingId,FacilityId,BookingDate,BookingTime,UserId")] Booking booking)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(booking);
-                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FacilityId"] = new SelectList(_context.Facility, "FacilityId", "FacilityName", booking.FacilityId);
+            ViewData["FacilityId"] = new SelectList(_context.Facility, "VenueId", "VenueName");
             return View(booking);
         }
 
@@ -94,7 +92,7 @@ namespace booking_facilities.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("BookingId,FacilityId,BookingDateTime,UserId")] Booking booking)
+        public async Task<IActionResult> Edit(int id, [Bind("BookingId,FacilityId,BookingDate,BookingTime,UserId")] Booking booking)
         {
             if (id != booking.BookingId)
             {
