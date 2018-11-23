@@ -9,8 +9,8 @@ using booking_facilities.Models;
 namespace booking_facilities.Migrations
 {
     [DbContext(typeof(booking_facilitiesContext))]
-    [Migration("20181123140308_InitialiseSchema")]
-    partial class InitialiseSchema
+    [Migration("20181123163227_initialise_db")]
+    partial class initialise_db
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
