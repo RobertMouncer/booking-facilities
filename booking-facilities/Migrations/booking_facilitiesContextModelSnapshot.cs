@@ -2,7 +2,6 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using booking_facilities.Models;
 
@@ -16,14 +15,12 @@ namespace booking_facilities.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.1.4-rtm-31024")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("booking_facilities.Models.Booking", b =>
                 {
                     b.Property<int>("BookingId")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<DateTime>("BookingDateTime");
 
@@ -41,8 +38,7 @@ namespace booking_facilities.Migrations
             modelBuilder.Entity("booking_facilities.Models.Facility", b =>
                 {
                     b.Property<int>("FacilityId")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("FacilityName")
                         .IsRequired();
@@ -63,8 +59,7 @@ namespace booking_facilities.Migrations
             modelBuilder.Entity("booking_facilities.Models.Sport", b =>
                 {
                     b.Property<int>("SportId")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("SportName")
                         .IsRequired();
@@ -77,8 +72,7 @@ namespace booking_facilities.Migrations
             modelBuilder.Entity("booking_facilities.Models.Venue", b =>
                 {
                     b.Property<int>("VenueId")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .ValueGeneratedOnAdd();
 
                     b.Property<string>("VenueName")
                         .IsRequired();

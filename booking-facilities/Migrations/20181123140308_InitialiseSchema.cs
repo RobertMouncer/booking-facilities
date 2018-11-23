@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace booking_facilities.Migrations
 {
-    public partial class Initialise_all_models : Migration
+    public partial class InitialiseSchema : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -13,8 +13,8 @@ namespace booking_facilities.Migrations
                 columns: table => new
                 {
                     SportId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    SportName = table.Column<string>(nullable: true)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    SportName = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -26,8 +26,8 @@ namespace booking_facilities.Migrations
                 columns: table => new
                 {
                     VenueId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    VenueName = table.Column<int>(nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    VenueName = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -39,8 +39,8 @@ namespace booking_facilities.Migrations
                 columns: table => new
                 {
                     FacilityId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    FacilityName = table.Column<string>(nullable: true),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    FacilityName = table.Column<string>(nullable: false),
                     VenueId = table.Column<int>(nullable: false),
                     SportId = table.Column<int>(nullable: false)
                 },
@@ -66,7 +66,7 @@ namespace booking_facilities.Migrations
                 columns: table => new
                 {
                     BookingId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     FacilityId = table.Column<int>(nullable: false),
                     BookingDateTime = table.Column<DateTime>(nullable: false),
                     UserId = table.Column<int>(nullable: false)
