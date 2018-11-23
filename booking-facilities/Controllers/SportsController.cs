@@ -96,7 +96,12 @@ namespace booking_facilities.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+
+            if (_context.Sport.Any(s => s.SportName == sport.SportName))
+            {
+                ModelState.AddModelError("SportName", "Sport already exists. Please enter another sport.");
+            }
+            else if(ModelState.IsValid)
             {
                 try
                 {
