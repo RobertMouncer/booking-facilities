@@ -29,8 +29,9 @@ namespace booking_facilities.Controllers
 
         // GET: api/SportsAPI/5
         [HttpGet("getSportsByVenue/{id}")]
-        public async Task<IActionResult> GetSport([FromRoute] int id)
+        public IActionResult GetSport([FromRoute] int id)
         {
+            
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -41,7 +42,7 @@ namespace booking_facilities.Controllers
             var results = new List<Sport>();
             foreach (Facility f in facilities)
             {
-                results.Add(sports.Where(s => s.SportId.Equals(f.SportId)).Single()); 
+                results.Add(sports.Where(s => s.SportId.Equals(f.SportId)).Single());
             }
 
             if (facilities == null)
@@ -49,7 +50,7 @@ namespace booking_facilities.Controllers
                 return NotFound();
             }
 
-            return Ok(results);
+            return Ok(results.Distinct());
         }
 
     }
