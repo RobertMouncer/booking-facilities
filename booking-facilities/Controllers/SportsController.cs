@@ -55,7 +55,11 @@ namespace booking_facilities.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("SportId,SportName")] Sport sport)
         {
-            if (ModelState.IsValid)
+            if (_context.Sport.Any(s => s.SportName == sport.SportName))
+            {
+                ModelState.AddModelError("SportName","Sport already exists. Please enter another sport.");
+            }
+            else if (ModelState.IsValid)
             {
                 _context.Add(sport);
                 await _context.SaveChangesAsync();
@@ -148,5 +152,7 @@ namespace booking_facilities.Controllers
         {
             return _context.Sport.Any(e => e.SportId == id);
         }
+
+       
     }
 }

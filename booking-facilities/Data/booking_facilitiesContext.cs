@@ -22,6 +22,5 @@ namespace booking_facilities.Models
 
         public DbSet<booking_facilities.Models.Booking> Booking { get; set; }
 
-        
     }
 }
