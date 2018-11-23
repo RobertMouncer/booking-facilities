@@ -11,14 +11,21 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using booking_facilities.Models;
+using System.Net;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace booking_facilities
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private readonly IConfigurationSection appConfig;
+        private readonly IHostingEnvironment environment;
+
+        public Startup(IConfiguration configuration, IHostingEnvironment environment)
         {
             Configuration = configuration;
+            this.environment = environment;
+            this.appConfig = configuration.GetSection("Booking_Facilities");
         }
 
         public IConfiguration Configuration { get; }
@@ -28,8 +35,7 @@ namespace booking_facilities
         {
             services.Configure<CookiePolicyOptions>(options =>
             {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
+                options.CheckConsentNeeded = context => false;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
@@ -37,7 +43,19 @@ namespace booking_facilities
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.AddDbContext<booking_facilitiesContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("booking_facilitiesContext")));
+                    options.UseMySql(Configuration.GetConnectionString("booking_facilitiesContext")));
+
+            if (!environment.IsDevelopment())
+            {
+                services.Configure<ForwardedHeadersOptions>(options =>
+                {
+                    var proxyAddresses = Dns.GetHostAddresses(appConfig.GetValue<string>("ReverseProxyHostname", "http://nginx"));
+                    foreach (var ip in proxyAddresses)
+                    {
+                        options.KnownProxies.Add(ip);
+                    };
+                });
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -46,9 +64,22 @@ namespace booking_facilities
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseDatabaseErrorPage();
             }
             else
             {
+                var pathBase = appConfig.GetValue<string>("PathBase", "/booking-facilities");
+                RunMigrations(app);
+                app.UsePathBase(pathBase);
+                app.Use((context, next) =>
+                {
+                    context.Request.PathBase = new PathString(pathBase);
+                    return next();
+                });
+                app.UseForwardedHeaders(new ForwardedHeadersOptions
+                {
+                    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+                });
                 app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
@@ -63,6 +94,16 @@ namespace booking_facilities
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+
+        private void RunMigrations(IApplicationBuilder app)
+        {
+            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                var serviceProvider = serviceScope.ServiceProvider;
+                var dbContext = serviceProvider.GetService<booking_facilitiesContext>();
+                dbContext.Database.Migrate();
+            }
         }
     }
 }
