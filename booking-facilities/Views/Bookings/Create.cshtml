@@ -22,17 +22,27 @@
             </div>
             <div class="form-group">
                 <label asp-for="BookingDate" class="control-label"></label>
-                <input asp-for="BookingDate" class="form-control" type="date"/>
+                <input asp-for="BookingDate" class="form-control" type="date" id="BookingDate"/>
                 <span asp-validation-for="BookingDate" class="text-danger"></span>
             </div>
+            <div class="input-group">
+                <input type="button" onclick="getTimes()" value="Get times" class="form-control" />
+            </div>
 
-                <div class="form-group">
-                    <input type="submit" value="Next" class="btn btn-default" />
-                </div>
+            <div class="form-group" id="BookingTimeId">
+                <label asp-for="BookingTime" class="control-label"></label>
+                <select asp-for="BookingTime" class="form-control" asp-items="ViewBag.BookingTime" id="BookingTimeDDL" disabled ></select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-default" disabled id="submitButton"/>
+            </div>
         </form>
     </div>
 </div>
 
+<div id="demo">
+    hehera
+</div>
 
 <div>
     <a asp-action="Index">Back to List</a>
@@ -59,6 +69,27 @@
                 }
             });
         }
+
+        function getTimes() {
+            //TO-DO check if data is in venue and sports box
+            //TO-DO check if date has been entered
+            var urlBooking = "/booking/" + document.getElementById("BookingDate").value + "/" + $("#venueDDL").val() + "/" + $("#sportDDL").val();
+            document.getElementById("demo").innerHTML = urlBooking;
+
+            //call api
+            $.ajax({
+                url: urlBooking,
+                success: function (json) {
+                    //DO SUCCESS
+                    //fill dropdown
+                }
+            });
+
+
+        }
+
         updateSports();
+        $("#BookingTimeId").hide();
+        $("#submitButton").hide();
     </script>
     }
