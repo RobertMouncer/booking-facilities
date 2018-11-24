@@ -46,6 +46,38 @@ namespace booking_facilities.Controllers
             return Ok(booking);
         }
 
+        // GET: /booking//1/2
+        [HttpGet("{date}/{venueId}/{sportId}")]
+        public IActionResult GetTimes([FromRoute] DateTime date, [FromRoute] int venueId, [FromRoute] int sportId)
+        {
+            //get list of bookings to check for available times
+            var bookings = _context.Booking.Where(b => b.Facility.VenueId.Equals(venueId) && b.Facility.SportId.Equals(sportId) && (DateTime.Compare(b.BookingDateTime.Date, date.Date)) == 0).ToList();
+            //get list of facilites to check for available facility for this sport and venue
+            var facilities = _context.Facility.Where(f => f.VenueId.Equals(venueId) && f.SportId.Equals(sportId));
+            var timeList = new List<DateTime>();
+            int dayStartsAt = 9;
+            int hoursOpen = 12;
+            int facilitiesLength = facilities.Count();
+            int countBookings = 0;
+
+            date = date.AddHours(dayStartsAt);
+
+            //iterate through each hour that the facility can be open
+            //count number of bookings for each facility -> if count is equal to number of facilites then this time is not available
+            for (int i = 0; i < hoursOpen; i++)
+            {
+                countBookings = bookings.Count(b => b.BookingDateTime.Equals(date));
+                //if count is less than number of facilites then this time is available
+                if (countBookings < facilitiesLength)
+                {
+                    timeList.Add(date);
+                }
+                date = date.AddHours(1);
+            }
+
+            return Ok(timeList);
+        }
+
         // PUT: /booking/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutBooking([FromRoute] int id, [FromBody] Booking booking)

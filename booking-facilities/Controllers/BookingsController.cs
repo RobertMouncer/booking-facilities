@@ -60,8 +60,9 @@ namespace booking_facilities.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([Bind("BookingId,FacilityId,BookingDate,BookingTime,UserId")] Booking booking)
+        public IActionResult Create([Bind("BookingId,FacilityId,BookingDateTime,UserId")] Booking booking)
         {
+            //TO-DO if booking is no longer available -> SHUT DOWN
             if (ModelState.IsValid)
             {
 
@@ -93,7 +94,7 @@ namespace booking_facilities.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("BookingId,FacilityId,BookingDate,BookingTime,UserId")] Booking booking)
+        public async Task<IActionResult> Edit(int id, [Bind("BookingId,FacilityId,BookingDateTime,UserId")] Booking booking)
         {
             if (id != booking.BookingId)
             {

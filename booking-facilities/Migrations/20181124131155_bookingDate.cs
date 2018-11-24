@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace booking_facilities.Migrations
 {
-    public partial class initialise_db : Migration
+    public partial class bookingDate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -68,8 +68,7 @@ namespace booking_facilities.Migrations
                     BookingId = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     FacilityId = table.Column<int>(nullable: false),
-                    BookingDate = table.Column<DateTime>(type: "date", nullable: false),
-                    BookingTime = table.Column<DateTime>(nullable: false),
+                    BookingDateTime = table.Column<DateTime>(nullable: false),
                     UserId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>

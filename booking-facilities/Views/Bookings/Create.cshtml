@@ -21,20 +21,18 @@
                 <select asp-for="Facility.SportId" class="form-control" asp-items="ViewBag.SportId" id="sportDDL"></select>
             </div>
             <div class="form-group">
-                <label asp-for="BookingDate" class="control-label"></label>
-                <input asp-for="BookingDate" class="form-control" type="date" id="BookingDate"/>
-                <span asp-validation-for="BookingDate" class="text-danger"></span>
+                <label for="BookingDateId" class="control-label">Booking Date</label>
+                <input class="form-control" type="date" id="BookingDateId" />
             </div>
             <div class="input-group">
                 <input type="button" onclick="getTimes()" value="Get times" class="form-control" />
             </div>
-
-            <div class="form-group" id="BookingTimeId">
-                <label asp-for="BookingTime" class="control-label"></label>
-                <select asp-for="BookingTime" class="form-control" asp-items="ViewBag.BookingTime" id="BookingTimeDDL" disabled ></select>
+            <div class="form-group" id="BookingTimeForm">
+                <label for="BookingTimeId" class="control-label">Booking Time</label>
+                <select class="form-control" id="BookingTimeId" />
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-default" disabled id="submitButton"/>
+                <input type="submit" value="Create" class="btn btn-default" disabled id="submitButton" />
             </div>
         </form>
     </div>
@@ -73,7 +71,7 @@
         function getTimes() {
             //TO-DO check if data is in venue and sports box
             //TO-DO check if date has been entered
-            var urlBooking = "/booking/" + document.getElementById("BookingDate").value + "/" + $("#venueDDL").val() + "/" + $("#sportDDL").val();
+            var urlBooking = "/booking/" + document.getElementById("BookingDateId").value + "/" + $("#venueDDL").val() + "/" + $("#sportDDL").val();
             document.getElementById("demo").innerHTML = urlBooking;
 
             //call api
@@ -89,7 +87,7 @@
         }
 
         updateSports();
-        $("#BookingTimeId").hide();
+        $("#BookingTimeForm").hide();
         $("#submitButton").hide();
     </script>
     }

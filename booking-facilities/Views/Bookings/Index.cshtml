@@ -19,10 +19,7 @@
                 @Html.DisplayNameFor(model => model.Facility.Venue)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.BookingDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BookingTime)
+                @Html.DisplayNameFor(model => model.BookingDateTime)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.UserId)
@@ -40,12 +37,9 @@
                 @Html.DisplayFor(modelItem => item.Facility.Venue.VenueName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.BookingDate)
+                @Html.DisplayFor(modelItem => item.BookingDateTime)
             </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.BookingTime)
-            </td>
-            <td>
++            <td>
                 @Html.DisplayFor(modelItem => item.UserId)
             </td>
             <td>

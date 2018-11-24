@@ -9,8 +9,8 @@ using booking_facilities.Models;
 namespace booking_facilities.Migrations
 {
     [DbContext(typeof(booking_facilitiesContext))]
-    [Migration("20181123230956_initialise_db")]
-    partial class initialise_db
+    [Migration("20181124131155_bookingDate")]
+    partial class bookingDate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -24,10 +24,7 @@ namespace booking_facilities.Migrations
                     b.Property<int>("BookingId")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<DateTime>("BookingDate")
-                        .HasColumnType("date");
-
-                    b.Property<DateTime>("BookingTime");
+                    b.Property<DateTime>("BookingDateTime");
 
                     b.Property<int>("FacilityId");
 

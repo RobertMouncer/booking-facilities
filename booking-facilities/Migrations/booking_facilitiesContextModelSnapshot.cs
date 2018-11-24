@@ -22,10 +22,7 @@ namespace booking_facilities.Migrations
                     b.Property<int>("BookingId")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<DateTime>("BookingDate")
-                        .HasColumnType("date");
-
-                    b.Property<DateTime>("BookingTime");
+                    b.Property<DateTime>("BookingDateTime");
 
                     b.Property<int>("FacilityId");
 
