@@ -20,14 +20,8 @@ namespace booking_facilities.Controllers
             _context = context;
         }
 
-        // GET: api/SportsAPI
-        //[HttpGet]
-        //public IEnumerable<Sport> GetSport()
-        //{
-        //    return _context.Sport;
-        //}
 
-        // GET: api/SportsAPI/5
+        // GET: sports/getSportsByVenue/5
         [HttpGet("getSportsByVenue/{id}")]
         public IActionResult GetSport([FromRoute] int id)
         {
