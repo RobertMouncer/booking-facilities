@@ -12,4 +12,4 @@ EXPOSE 443
 ENV ASPNETCORE_URLS=https://+:443;http://+:80;
 WORKDIR /app
 COPY --from=build-env /app/out .
-ENTRYPOINT ["dotnet", "booking-facilities.dll"]
+ENTRYPOINT ["dotnet", "booking_facilities.dll"]
