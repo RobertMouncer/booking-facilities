@@ -28,8 +28,8 @@
                 <input type="button" onclick="getTimes()" value="Get times" class="form-control" />
             </div>
             <div class="form-group" id="BookingTimeForm">
-                <label for="BookingTimeId" class="control-label">Booking Time</label>
-                <select class="form-control" id="BookingTimeId" />
+                <label for="timeDDL" class="control-label">Booking Time</label>
+                <select class="form-control" id="timeDDL" />
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-default" disabled id="submitButton" />
@@ -72,14 +72,19 @@
             //TO-DO check if data is in venue and sports box
             //TO-DO check if date has been entered
             var urlBooking = "/booking/" + document.getElementById("BookingDateId").value + "/" + $("#venueDDL").val() + "/" + $("#sportDDL").val();
-            document.getElementById("demo").innerHTML = urlBooking;
-
             //call api
             $.ajax({
                 url: urlBooking,
                 success: function (json) {
                     //DO SUCCESS
                     //fill dropdown
+                    var times = "";
+                    $("#BookingTimeForm").show();
+
+                    $.each(json, function (i, time) {
+                        times += "<option value='" + i + "'>" + time + "</option>";
+                    })
+                    $("#timeDDL").empty().html(times);
                 }
             });
 

@@ -9,8 +9,8 @@ using booking_facilities.Models;
 namespace booking_facilities.Migrations
 {
     [DbContext(typeof(booking_facilitiesContext))]
-    [Migration("20181124131155_bookingDate")]
-    partial class bookingDate
+    [Migration("20181125141431_bookingDateTime")]
+    partial class bookingDateTime
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
