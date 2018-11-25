@@ -64,7 +64,7 @@ namespace booking_facilities.Controllers
         public async Task<IActionResult> Create([Bind("BookingId,FacilityId,BookingDateTime,UserId")] Booking booking)
         {
             //TO-DO if booking is no longer available -> SHUT DOWN
-            if(DateTime.Compare(booking.BookingDateTime, DateTime.Now) =< 0)
+            if(DateTime.Compare(booking.BookingDateTime, DateTime.Now) <= 0)
             {
                 ModelState.AddModelError("BookingDateTime", "Requested booking date and time has passed.");
             }
