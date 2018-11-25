@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,6 +16,7 @@ namespace booking_facilities.Models
         public virtual int FacilityId { get; set; }
         public virtual Facility Facility { get; set; }
         [Required]
+        [DisplayName("Booking Date & Time")]
         public virtual DateTime BookingDateTime { get; set; }
         [Required]
         public virtual int UserId { get; set; }

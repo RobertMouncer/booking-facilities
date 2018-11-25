@@ -9,8 +9,8 @@ using booking_facilities.Models;
 namespace booking_facilities.Migrations
 {
     [DbContext(typeof(booking_facilitiesContext))]
-    [Migration("20181123140308_InitialiseSchema")]
-    partial class InitialiseSchema
+    [Migration("20181125141431_bookingDateTime")]
+    partial class bookingDateTime
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -43,7 +43,8 @@ namespace booking_facilities.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("FacilityName")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasMaxLength(50);
 
                     b.Property<int>("SportId");
 
@@ -64,7 +65,8 @@ namespace booking_facilities.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("SportName")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasMaxLength(50);
 
                     b.HasKey("SportId");
 
@@ -77,7 +79,8 @@ namespace booking_facilities.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("VenueName")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasMaxLength(50);
 
                     b.HasKey("VenueId");
 

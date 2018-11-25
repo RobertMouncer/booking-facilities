@@ -20,22 +20,11 @@ namespace booking_facilities.Controllers
             _context = context;
         }
 
-        // GET: api/SportsAPI
-        //[HttpGet]
-        //public IEnumerable<Sport> GetSport()
-        //{
-        //    return _context.Sport;
-        //}
 
-        // GET: api/SportsAPI/5
+        // GET: sports/getSportsByVenue/5
         [HttpGet("getSportsByVenue/{id}")]
         public IActionResult GetSport([FromRoute] int id)
         {
-            
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             var facilities = _context.Facility.Where(f => f.VenueId.Equals(id));
             var sports = _context.Sport;
@@ -43,11 +32,6 @@ namespace booking_facilities.Controllers
             foreach (Facility f in facilities)
             {
                 results.Add(sports.Where(s => s.SportId.Equals(f.SportId)).Single());
-            }
-
-            if (facilities == null)
-            {
-                return NotFound();
             }
 
             return Ok(results.Distinct());

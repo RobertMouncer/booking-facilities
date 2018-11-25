@@ -41,7 +41,8 @@ namespace booking_facilities.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("FacilityName")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasMaxLength(50);
 
                     b.Property<int>("SportId");
 
@@ -62,7 +63,8 @@ namespace booking_facilities.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("SportName")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasMaxLength(50);
 
                     b.HasKey("SportId");
 
@@ -75,7 +77,8 @@ namespace booking_facilities.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("VenueName")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasMaxLength(50);
 
                     b.HasKey("VenueId");
 

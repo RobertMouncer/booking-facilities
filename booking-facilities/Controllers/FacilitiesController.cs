@@ -60,7 +60,11 @@ namespace booking_facilities.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("FacilityId,FacilityName,VenueId,SportId")] Facility facility)
         {
-            if (ModelState.IsValid)
+            if (_context.Facility.Where(f => f.SportId.Equals(facility.SportId) && f.VenueId.Equals(facility.VenueId)).Any(f => f.FacilityName == facility.FacilityName))
+            {
+                ModelState.AddModelError("FacilityName", "Facility for this sport already exists at this venue. Please enter another facility name.");
+            }
+            else if(ModelState.IsValid)
             {
                 _context.Add(facility);
                 await _context.SaveChangesAsync();
@@ -101,7 +105,11 @@ namespace booking_facilities.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (_context.Facility.Where(f => f.SportId.Equals(facility.SportId) && f.VenueId.Equals(facility.VenueId)).Any(f => f.FacilityName == facility.FacilityName))
+            {
+                ModelState.AddModelError("FacilityName", "Facility for this sport already exists at this venue. Please enter another facility name.");
+            }
+            else if(ModelState.IsValid)
             {
                 try
                 {

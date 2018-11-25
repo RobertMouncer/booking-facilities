@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace booking_facilities.Migrations
 {
-    public partial class InitialiseSchema : Migration
+    public partial class bookingDateTime : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -14,7 +14,7 @@ namespace booking_facilities.Migrations
                 {
                     SportId = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    SportName = table.Column<string>(nullable: false)
+                    SportName = table.Column<string>(maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -27,7 +27,7 @@ namespace booking_facilities.Migrations
                 {
                     VenueId = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    VenueName = table.Column<string>(nullable: false)
+                    VenueName = table.Column<string>(maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -40,7 +40,7 @@ namespace booking_facilities.Migrations
                 {
                     FacilityId = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    FacilityName = table.Column<string>(nullable: false),
+                    FacilityName = table.Column<string>(maxLength: 50, nullable: false),
                     VenueId = table.Column<int>(nullable: false),
                     SportId = table.Column<int>(nullable: false)
                 },

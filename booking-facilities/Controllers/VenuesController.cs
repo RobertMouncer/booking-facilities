@@ -55,7 +55,11 @@ namespace booking_facilities.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("VenueId,VenueName")] Venue venue)
         {
-            if (ModelState.IsValid)
+            if (_context.Venue.Any(v => v.VenueName == venue.VenueName))
+            {
+                ModelState.AddModelError("VenueName", "Venue already exists. Please enter another venue.");
+            }
+            else if(ModelState.IsValid)
             {
                 _context.Add(venue);
                 await _context.SaveChangesAsync();
@@ -92,7 +96,11 @@ namespace booking_facilities.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (_context.Venue.Any(v => v.VenueName == venue.VenueName))
+            {
+                ModelState.AddModelError("VenueName", "Venue already exists. Please enter another venue.");
+            }
+            else if(ModelState.IsValid)
             {
                 try
                 {
