@@ -22,7 +22,7 @@ namespace booking_facilities.Controllers
         // GET: Bookings
         public async Task<IActionResult> Index()
         {
-            var booking_facilitiesContext = _context.Booking.Include(b => b.Facility).Include(b => b.Facility.Venue);
+            var booking_facilitiesContext = _context.Booking.Include(b => b.Facility).Include(b => b.Facility.Venue).Include(b => b.Facility.Sport);
             return View(await booking_facilitiesContext.ToListAsync());
         }
 
