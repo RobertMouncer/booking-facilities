@@ -64,13 +64,18 @@ namespace booking_facilities.Controllers
         public async Task<IActionResult> Create([Bind("BookingId,FacilityId,BookingDateTime,UserId")] Booking booking)
         {
             //TO-DO if booking is no longer available -> SHUT DOWN
-            if (ModelState.IsValid)
+            if(DateTime.Compare(booking.BookingDateTime, DateTime.Now) < 0)
+            {
+                ModelState.AddModelError("BookingDateTime", "Requested booking date and time has passed.");
+            }
+            else if (ModelState.IsValid)
             {
                 _context.Add(booking);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
+            ViewData["FacilityId"] = new SelectList(_context.Facility, "FacilityId", "FacilityName");
             return View(booking);
         }
 
