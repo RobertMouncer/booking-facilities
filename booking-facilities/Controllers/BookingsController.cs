@@ -64,18 +64,18 @@ namespace booking_facilities.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("BookingId,FacilityId,BookingDateTime,UserId")] Booking booking, [Bind("VenueId")] int VenueId, [Bind("SportId")] int SportId)
         {
-            //get all bookings for sport at venue at given time
-            var bookingsContext = _context.Booking.Where(b => b.BookingDateTime.Equals(booking.BookingDateTime) && b.Facility.VenueId.Equals(VenueId) && b.Facility.SportId.Equals(SportId));
-            //get all facilities for sport at venue
-            var facilitiesContext = _context.Facility.Where(f => f.VenueId.Equals(VenueId) && f.SportId.Equals(SportId));
-
+            //Find facility that can be booked.
+            var bookings = _context.Booking.Where(b => b.BookingDateTime.Equals(booking.BookingDateTime) && b.Facility.VenueId.Equals(VenueId) && b.Facility.SportId.Equals(SportId));
+            var facilities = _context.Facility;
+            var faciltiesFiltered = facilities.Where(f => f.VenueId.Equals(VenueId) && f.SportId.Equals(SportId));
+            
             bool facilityTaken = false;
 
-            foreach (Facility f in facilitiesContext) //loop around three facilities
+            foreach (Facility f in faciltiesFiltered) //loop around three facilities
             {
                 facilityTaken = false;
                 
-                foreach (Booking b in bookingsContext)// 2 (court 1 and court 2)
+                foreach (Booking b in bookings)// 2 (court 1 and court 2)
                 {
                     if (b.FacilityId == f.FacilityId) // if the booking facility id is equal to the facility id, the facility is taken
                     {
@@ -89,19 +89,27 @@ namespace booking_facilities.Controllers
                     break;
                 }
             }
-
-            if(DateTime.Compare(booking.BookingDateTime, DateTime.Now) <= 0)
+            //adds model errors if date input is not correct
+            //checks date/time to be booked is after current date/time -> else add model error.
+            //and adds model error if facilities are not available. 
+             if (DateTime.Compare(booking.BookingDateTime, DateTime.Now) <= 0)
             {
                 ModelState.AddModelError("BookingDateTime", "Date/Time is in the past. Please enter future Date/Time.");
             }
-            else if (ModelState.IsValid)
+            else if (facilityTaken)
+            {
+                ModelState.AddModelError("BookingDateTime", "Date/Time is no longer available. Please try again.");
+            }
+            else if(ModelState.IsValid)
             {
                 _context.Add(booking);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
+
             ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
-            ViewData["FacilityId"] = new SelectList(_context.Facility, "FacilityId", "FacilityName");
+            ViewData["FacilityId"] = new SelectList(facilities, "FacilityId", "FacilityName");
             ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportName");
             return View(booking);
         }

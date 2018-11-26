@@ -15,18 +15,13 @@
 
             <div class="form-group">
                 @Html.LabelFor(m => m.Facility.VenueId, new { @class = "control-label" })
-                @Html.DropDownList("VenueId", (IEnumerable<SelectListItem>)ViewBag.VenueId, new { @id = "venueDDL", @class = "form-control" , @onchange= "updateSports()" })
+                @Html.DropDownList("VenueId", (IEnumerable<SelectListItem>)ViewBag.VenueId, new { @id = "venueDDL", @class = "form-control" , @onchange= "updateSports(); getTimes()" })
             </div>
 
             <div class="form-group">
                 @Html.LabelFor(m => m.Facility.SportId, new {@class="control-label"})
-                @Html.DropDownList("SportId", (IEnumerable<SelectListItem>)ViewBag.SportId, new { @id = "sportDDL", @class = "form-control" })
+                @Html.DropDownList("SportId", (IEnumerable<SelectListItem>)ViewBag.SportId, new { @id = "sportDDL", @class = "form-control" , @onchange="getTimes()"})
             </div>
-
-            @*<div class="form-group">
-                <label asp-for="FacilityId" class="control-label"></label>
-                <select asp-for="FacilityId" class="form-control" asp-items="ViewBag.FacilityId"></select>
-            </div>*@
 
             <div class="form-group">
                 <label asp-for="UserId" class="control-label"></label>
@@ -71,8 +66,10 @@
         function updateDateTime() {
             document.getElementById("BookingDateTime").value = document.getElementById("BookingDateId").value + "T" + $("#timeDDL :selected").text();
         }
-        function updateSports() {
 
+        function updateSports() {
+            document.getElementById("BookingDateId").value = document.getElementById("BookingDateTime").value = "";
+            $("#timeDDL").empty();
             urlVenues = "/Sports/getSportsByVenue/" + $("#venueDDL").val();
             $.ajax({
                 url: urlVenues,
