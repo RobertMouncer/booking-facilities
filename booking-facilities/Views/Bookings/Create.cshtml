@@ -53,7 +53,6 @@
     </div>
 
 </div>
-
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
@@ -70,7 +69,8 @@
         function updateSports() {
             document.getElementById("BookingDateId").value = document.getElementById("BookingDateTime").value = "";
             $("#timeDDL").empty();
-            urlVenues = "/Sports/getSportsByVenue/" + $("#venueDDL").val();
+            urlVenues = "/api" + '@Url.Action("getSportsByVenue", "Sports")' + '/' + $("#venueDDL").val();
+            
             $.ajax({
                 url: urlVenues,
                 success: function (json) {
@@ -87,8 +87,7 @@
 
         function getTimes() {
 
-            var urlBooking = "/booking/" + document.getElementById("BookingDateId").value + "/" + $("#venueDDL").val() + "/" + $("#sportDDL").val();
-
+            var urlBooking = "/api/booking/"  + document.getElementById("BookingDateId").value + "/" + $("#venueDDL").val() + "/" + $("#sportDDL").val();
             $.ajax({
                 url: urlBooking,
                 success: function (json) {

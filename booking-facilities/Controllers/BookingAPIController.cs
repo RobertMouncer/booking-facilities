@@ -9,7 +9,7 @@ using booking_facilities.Models;
 
 namespace booking_facilities.Controllers
 {
-    [Route("/booking")]
+    [Route("api/booking")]
     [ApiController]
     public class BookingAPIController : ControllerBase
     {
@@ -20,14 +20,14 @@ namespace booking_facilities.Controllers
             _context = context;
         }
 
-        // GET: /booking
+        // GET: api/booking
         [HttpGet]
         public IEnumerable<Booking> GetBooking()
         {
             return _context.Booking;
         }
 
-        // GET: /booking/5
+        // GET: api/booking/5
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBooking([FromRoute] int id)
         {
@@ -46,7 +46,7 @@ namespace booking_facilities.Controllers
             return Ok(booking);
         }
 
-        // GET: /booking/2018-11-25/1/2
+        // GET: api/booking/2018-11-25/1/2
         [HttpGet("{date}/{venueId}/{sportId}")]
         public IActionResult GetTimes([FromRoute] DateTime date, [FromRoute] int venueId, [FromRoute] int sportId)
         {
@@ -78,7 +78,7 @@ namespace booking_facilities.Controllers
             return Ok(timeList);
         }
 
-        // PUT: /booking/5
+        // PUT: api/booking/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutBooking([FromRoute] int id, [FromBody] Booking booking)
         {
@@ -113,7 +113,7 @@ namespace booking_facilities.Controllers
             return NoContent();
         }
 
-        // POST: /booking
+        // POST: api/booking
         [HttpPost]
         public async Task<IActionResult> PostBooking([FromBody] Booking booking)
         {
@@ -128,7 +128,7 @@ namespace booking_facilities.Controllers
             return CreatedAtAction("GetBooking", new { id = booking.BookingId }, booking);
         }
 
-        // DELETE: /booking
+        // DELETE: api/booking
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBooking([FromRoute] int id)
         {

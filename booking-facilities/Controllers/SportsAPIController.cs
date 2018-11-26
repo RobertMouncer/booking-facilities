@@ -9,7 +9,7 @@ using booking_facilities.Models;
 
 namespace booking_facilities.Controllers
 {
-    [Route("Sports")]
+    [Route("api/sports")]
     [ApiController]
     public class SportsAPIController : ControllerBase
     {
