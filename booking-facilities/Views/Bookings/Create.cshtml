@@ -12,32 +12,47 @@
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <div class="form-group">
-                <label asp-for="Facility.VenueId" class="control-label"></label>
-                <select asp-for="Facility.VenueId" class="form-control" asp-items="ViewBag.VenueId" onchange="updateSports()" id="venueDDL"></select>
+                @Html.LabelFor(m => m.Facility.VenueId, new { @class = "control-label" })
+                @Html.DropDownList("VenueId", (IEnumerable<SelectListItem>)ViewBag.VenueId, new { @id = "venueDDL", @class = "form-control" , @onchange= "updateSports(); getTimes()" })
             </div>
+
             <div class="form-group">
-                <label asp-for="Facility.SportId" class="control-label"></label>
-                <select asp-for="Facility.SportId" class="form-control" asp-items="ViewBag.SportId" id="sportDDL"></select>
+                @Html.LabelFor(m => m.Facility.SportId, new {@class="control-label"})
+                @Html.DropDownList("SportId", (IEnumerable<SelectListItem>)ViewBag.SportId, new { @id = "sportDDL", @class = "form-control" , @onchange="getTimes()"})
             </div>
+
+            <div class="form-group">
+                <label asp-for="UserId" class="control-label"></label>
+                <input asp-for="UserId" class="form-control" asp-items="ViewBag.UserId" />
+            </div>
+
             <div class="form-group">
                 <label for="BookingDateId" class="control-label">Booking Date</label>
-                <input class="form-control" type="date" id="BookingDateId" />
+                <input class="form-control" type="date" id="BookingDateId" onchange="getTimes()" />
             </div>
-            <div class="input-group">
-                <input type="button" onclick="getTimes()" value="Get times" class="form-control" />
-            </div>
-            <div class="form-group" id="BookingTimeForm">
-                <label for="timeDDL" class="control-label">Booking Time</label>
-                <select class="form-control" id="timeDDL" />
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-default" disabled id="submitButton" />
-            </div>
-        </form>
-    </div>
-</div>
 
+            <div class="form-group">
+                <label for="timeDDL" class="control-label">Booking Time</label>
+                <select class="form-control" id="timeDDL" onchange="updateDateTime()"></select>
+            </div>
+
+            <div class="form-group" id="BookingTimeForm">
+                <label asp-for="BookingDateTime" class="control-label"></label>
+                <input asp-for="BookingDateTime" class="form-control" asp-items="ViewBag.BookingDateTime" id="BookingDateTime" readonly="readonly" />
+                <span asp-validation-for="BookingDateTime" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-default" id="submitButton" />
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
@@ -47,48 +62,50 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
     <script>
+        function updateDateTime() {
+            document.getElementById("BookingDateTime").value = document.getElementById("BookingDateId").value + "T" + $("#timeDDL :selected").text();
+        }
+
         function updateSports() {
+            document.getElementById("BookingDateId").value = document.getElementById("BookingDateTime").value = "";
+            $("#timeDDL").empty();
+            urlVenues = "/api" + '@Url.Action("getSportsByVenue", "Sports")' + '/' + $("#venueDDL").val();
             
-            urlVenues = "/Sports/getSportsByVenue/" + $("#venueDDL").val();
             $.ajax({
                 url: urlVenues,
                 success: function (json) {
 
                     var items = "";
                     $.each(json, function (i, sport) {
-                        items += "<option value='" + sport.sportId + "'>" + sport.sportName+ "</option>";
+                        items += "<option value='" + sport.sportId + "'>" + sport.sportName + "</option>";
                     })
                     $("#sportDDL").empty().html(items);
-      
+
                 }
             });
         }
 
         function getTimes() {
-            //TO-DO check if data is in venue and sports box
-            //TO-DO check if date has been entered
-            var urlBooking = "/booking/" + document.getElementById("BookingDateId").value + "/" + $("#venueDDL").val() + "/" + $("#sportDDL").val();
-            //call api
+
+            var urlBooking = "/api/booking/"  + document.getElementById("BookingDateId").value + "/" + $("#venueDDL").val() + "/" + $("#sportDDL").val();
             $.ajax({
                 url: urlBooking,
                 success: function (json) {
-                    //DO SUCCESS
-                    //fill dropdown
                     var times = "";
                     $("#BookingTimeForm").show();
 
                     $.each(json, function (i, time) {
-                        times += "<option value='" + i + "'>" + time + "</option>";
+                        var dout = new Date(Date.parse(time));
+                        times += "<option value='" + i + "'>" + dout.toLocaleTimeString() + "</option>";
                     })
                     $("#timeDDL").empty().html(times);
+                    updateDateTime();
+
                 }
+
             });
 
-
         }
-
         updateSports();
-        $("#BookingTimeForm").hide();
-        $("#submitButton").hide();
     </script>
-    }
+}

@@ -68,7 +68,7 @@ namespace booking_facilities
             }
             else
             {
-                var pathBase = appConfig.GetValue<string>("PathBase", "/booking-facilities");
+                var pathBase = appConfig.GetValue<string>("PathBase", "");
                 RunMigrations(app);
                 app.UsePathBase(pathBase);
                 app.Use((context, next) =>
@@ -92,7 +92,7 @@ namespace booking_facilities
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    template: "{controller=Bookings}/{action=Index}/{id?}");
             });
         }
 

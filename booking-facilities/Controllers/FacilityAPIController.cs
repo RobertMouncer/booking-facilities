@@ -9,7 +9,7 @@ using booking_facilities.Models;
 
 namespace booking_facilities.Controllers
 {
-    [Route("/getFacilities")]
+    [Route("api/getFacilities")]
     [ApiController]
     public class FacilityAPIController : ControllerBase
     {
@@ -20,7 +20,7 @@ namespace booking_facilities.Controllers
             _context = context;
         }
 
-        // GET: api/FacilityAPI
+        // GET: api/getFacilities
         [HttpGet]
         public IEnumerable<Facility> GetFacility()
         {
