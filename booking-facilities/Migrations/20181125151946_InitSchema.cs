@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace booking_facilities.Migrations
 {
-    public partial class bookingDateTime : Migration
+    public partial class InitSchema : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
