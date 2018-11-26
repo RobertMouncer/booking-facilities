@@ -46,7 +46,7 @@ namespace booking_facilities.Controllers
             return Ok(booking);
         }
 
-        // GET: /booking//1/2
+        // GET: /booking/2018-11-25/1/2
         [HttpGet("{date}/{venueId}/{sportId}")]
         public IActionResult GetTimes([FromRoute] DateTime date, [FromRoute] int venueId, [FromRoute] int sportId)
         {

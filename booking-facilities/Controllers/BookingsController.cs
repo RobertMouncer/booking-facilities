@@ -51,6 +51,7 @@ namespace booking_facilities.Controllers
         {
             ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
             ViewData["FacilityId"] = new SelectList(_context.Facility, "FacilityId", "FacilityName");
+            ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportName");
             return View();
         }
         
@@ -61,12 +62,37 @@ namespace booking_facilities.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("BookingId,FacilityId,BookingDateTime,UserId")] Booking booking)
+        public async Task<IActionResult> Create([Bind("BookingId,FacilityId,BookingDateTime,UserId")] Booking booking, [Bind("VenueId")] int VenueId, [Bind("SportId")] int SportId)
         {
-            //TO-DO if booking is no longer available -> SHUT DOWN
+            //get all bookings for sport at venue at given time
+            var bookingsContext = _context.Booking.Where(b => b.BookingDateTime.Equals(booking.BookingDateTime) && b.Facility.VenueId.Equals(VenueId) && b.Facility.SportId.Equals(SportId));
+            //get all facilities for sport at venue
+            var facilitiesContext = _context.Facility.Where(f => f.VenueId.Equals(VenueId) && f.SportId.Equals(SportId));
+
+            bool facilityTaken = false;
+
+            foreach (Facility f in facilitiesContext) //loop around three facilities
+            {
+                facilityTaken = false;
+                
+                foreach (Booking b in bookingsContext)// 2 (court 1 and court 2)
+                {
+                    if (b.FacilityId == f.FacilityId) // if the booking facility id is equal to the facility id, the facility is taken
+                    {
+                        facilityTaken = true;
+                        break;
+                    }
+                }
+                if(!facilityTaken) // if the facilty is not taken -> book that facility
+                {
+                    booking.FacilityId = f.FacilityId;
+                    break;
+                }
+            }
+
             if(DateTime.Compare(booking.BookingDateTime, DateTime.Now) <= 0)
             {
-                ModelState.AddModelError("BookingDateTime", "Requested booking date and time has passed.");
+                ModelState.AddModelError("BookingDateTime", "Date/Time is in the past. Please enter future Date/Time.");
             }
             else if (ModelState.IsValid)
             {
@@ -76,6 +102,7 @@ namespace booking_facilities.Controllers
             }
             ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
             ViewData["FacilityId"] = new SelectList(_context.Facility, "FacilityId", "FacilityName");
+            ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportName");
             return View(booking);
         }
 
