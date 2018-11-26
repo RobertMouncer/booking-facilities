@@ -68,7 +68,7 @@ namespace booking_facilities
             }
             else
             {
-                var pathBase = appConfig.GetValue<string>("PathBase", "booking-facilities");
+                var pathBase = appConfig.GetValue<string>("PathBase", "/booking-facilities");
                 RunMigrations(app);
                 app.UsePathBase(pathBase);
                 app.Use((context, next) =>
