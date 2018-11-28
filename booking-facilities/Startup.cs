@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore;
 using booking_facilities.Models;
 using System.Net;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Authentication;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace booking_facilities
 {
@@ -39,8 +41,43 @@ namespace booking_facilities
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            var appConfig = Configuration.GetSection("booking-facilities");
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = "Cookies";
+                options.DefaultChallengeScheme = "oidc";
+            })
+            .AddCookie("Cookies")
+            .AddOpenIdConnect("oidc", options =>
+            {
+                options.SignInScheme = "Cookies";
+                options.Authority = appConfig.GetValue<string>("GatekeeperUrl");
+                options.ClientId = appConfig.GetValue<string>("ClientId");
+                options.ClientSecret = appConfig.GetValue<string>("ClientSecret");
+                options.ResponseType = "code id_token";
+                options.SaveTokens = true;
+                options.GetClaimsFromUserInfoEndpoint = true;
+                options.Scope.Add("profile");
+                options.Scope.Add("offline_access");
+                options.ClaimActions.MapJsonKey("locale", "locale");
+                options.ClaimActions.MapJsonKey("user_type", "user_type");
+            }).AddIdentityServerAuthentication("Bearer", options =>
+            {
+                options.Authority = appConfig.GetValue<string>("GatekeeperUrl");
+                options.ApiName = appConfig.GetValue<string>("ApiResourceName");
+            });
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("APIPolicy", policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.AddAuthenticationSchemes("oidc", "Bearer");
+                });
+            });
+           
+           services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.AddDbContext<booking_facilitiesContext>(options =>
                     options.UseMySql(Configuration.GetConnectionString("booking_facilitiesContext")));
@@ -56,6 +93,7 @@ namespace booking_facilities
                     };
                 });
             }
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -87,6 +125,7 @@ namespace booking_facilities
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
+            app.UseAuthentication();
 
             app.UseMvc(routes =>
             {
