@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using booking_facilities.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace booking_facilities.Controllers
 {
+    [Authorize(Policy = "APIPolicy")]
     [Route("api/sports")]
     [ApiController]
     public class SportsAPIController : ControllerBase

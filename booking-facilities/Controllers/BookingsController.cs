@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using booking_facilities.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace booking_facilities.Controllers
 {
+    [Authorize(AuthenticationSchemes = "oidc")]
     public class BookingsController : Controller
     {
         private readonly booking_facilitiesContext _context;
@@ -106,8 +108,6 @@ namespace booking_facilities.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-
-
             ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
             ViewData["FacilityId"] = new SelectList(facilities, "FacilityId", "FacilityName");
             ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportName");

@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using booking_facilities.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace booking_facilities.Controllers
 {
+    [Authorize(AuthenticationSchemes = "oidc")]
     public class FacilitiesController : Controller
     {
         private readonly booking_facilitiesContext _context;
