@@ -98,7 +98,7 @@
 
                     $.each(json, function (i, time) {
                         var dout = new Date(Date.parse(time));
-                        times += "<option value='" + i + "'>" + dout.toLocaleTimeString() + "</option>";
+                        times += "<option value='" + i + "'>" + ("0" + dout.getHours()).slice(-2) + ":00:00" + "</option>";
                     })
                     $("#timeDDL").empty().html(times);
                     updateDateTime();

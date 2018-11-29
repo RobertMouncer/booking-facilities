@@ -67,27 +67,25 @@ namespace booking_facilities.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("BookingId,FacilityId,BookingDateTime,UserId")] Booking booking, [Bind("VenueId")] int VenueId, [Bind("SportId")] int SportId)
         {
-
-            //Find facility that can be booked.
             var bookings = _context.Booking.Where(b => b.BookingDateTime.Equals(booking.BookingDateTime) && b.Facility.VenueId.Equals(VenueId) && b.Facility.SportId.Equals(SportId));
             var facilities = _context.Facility;
             var faciltiesFiltered = facilities.Where(f => f.VenueId.Equals(VenueId) && f.SportId.Equals(SportId));
             
             bool facilityTaken = false;
 
-            foreach (Facility f in faciltiesFiltered) //loop around three facilities
+            foreach (Facility f in faciltiesFiltered) 
             {
                 facilityTaken = false;
                 
-                foreach (Booking b in bookings)// 2 (court 1 and court 2)
+                foreach (Booking b in bookings)
                 {
-                    if (b.FacilityId == f.FacilityId) // if the booking facility id is equal to the facility id, the facility is taken
+                    if (b.FacilityId == f.FacilityId) 
                     {
                         facilityTaken = true;
                         break;
                     }
                 }
-                if(!facilityTaken) // if the facilty is not taken -> book that facility
+                if(!facilityTaken)
                 {
                     booking.FacilityId = f.FacilityId;
                     break;
