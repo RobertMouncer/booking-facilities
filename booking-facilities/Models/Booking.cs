@@ -18,7 +18,6 @@ namespace booking_facilities.Models
         [Required]
         [DisplayName("Booking Date & Time")]
         public virtual DateTime BookingDateTime { get; set; }
-        [Required]
         public virtual String UserId { get; set; }
     }
 }
