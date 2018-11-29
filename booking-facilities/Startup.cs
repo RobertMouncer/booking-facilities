@@ -42,7 +42,6 @@ namespace booking_facilities
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            var appConfig = Configuration.GetSection("booking-facilities");
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
             services.AddHttpClient("gatekeeper");
