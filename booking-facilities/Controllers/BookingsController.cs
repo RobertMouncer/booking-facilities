@@ -129,6 +129,8 @@ namespace booking_facilities.Controllers
         // GET: Bookings/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            var facilities = _context.Facility;
+
             if (id == null)
             {
                 return NotFound();
@@ -139,7 +141,9 @@ namespace booking_facilities.Controllers
             {
                 return NotFound();
             }
-            ViewData["FacilityId"] = new SelectList(_context.Facility, "FacilityId", "FacilityName", booking.FacilityId);
+            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
+            ViewData["FacilityId"] = new SelectList(facilities, "FacilityId", "FacilityName");
+            ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportName");
             return View(booking);
         }
 
@@ -148,8 +152,35 @@ namespace booking_facilities.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("BookingId,FacilityId,BookingDateTime,UserId")] Booking booking)
+        public async Task<IActionResult> Edit(int id, [Bind("BookingId,FacilityId,BookingDateTime,UserId")] Booking booking, [Bind("VenueId")] int VenueId, [Bind("SportId")] int SportId)
         {
+            booking.UserId = User.Claims.FirstOrDefault(c => c.Type == "sub").Value;
+
+            var bookings = _context.Booking.Where(b => b.BookingDateTime.Equals(booking.BookingDateTime) && b.Facility.VenueId.Equals(VenueId) && b.Facility.SportId.Equals(SportId));
+            var facilities = _context.Facility;
+            var faciltiesFiltered = facilities.Where(f => f.VenueId.Equals(VenueId) && f.SportId.Equals(SportId));
+
+            bool facilityTaken = false;
+
+            foreach (Facility f in faciltiesFiltered)
+            {
+                facilityTaken = false;
+
+                foreach (Booking b in bookings)
+                {
+                    if (b.FacilityId == f.FacilityId)
+                    {
+                        facilityTaken = true;
+                        break;
+                    }
+                }
+                if (!facilityTaken)
+                {
+                    booking.FacilityId = f.FacilityId;
+                    break;
+                }
+            }
+
             if (id != booking.BookingId)
             {
                 return NotFound();
@@ -175,7 +206,9 @@ namespace booking_facilities.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FacilityId"] = new SelectList(_context.Facility, "FacilityId", "FacilityName", booking.FacilityId);
+            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
+            ViewData["FacilityId"] = new SelectList(facilities, "FacilityId", "FacilityName");
+            ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportName");
             return View(booking);
         }
 
