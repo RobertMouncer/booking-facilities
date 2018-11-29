@@ -228,8 +228,7 @@ definitions:
         type: string
         example: '2018-07-16 09:00:00'
       userId:
-        type: integer
-        format: int64
+        type: string
       facility:
         $ref: '#/definitions/Facility'
   Facility:

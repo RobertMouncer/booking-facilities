@@ -9,8 +9,8 @@ using booking_facilities.Models;
 namespace booking_facilities.Migrations
 {
     [DbContext(typeof(booking_facilitiesContext))]
-    [Migration("20181125151946_InitSchema")]
-    partial class InitSchema
+    [Migration("20181129123945_userId_int_to_string")]
+    partial class userId_int_to_string
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -28,7 +28,8 @@ namespace booking_facilities.Migrations
 
                     b.Property<int>("FacilityId");
 
-                    b.Property<int>("UserId");
+                    b.Property<string>("UserId")
+                        .IsRequired();
 
                     b.HasKey("BookingId");
 
