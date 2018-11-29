@@ -39,6 +39,7 @@ namespace booking_facilities.Controllers
             var booking = await _context.Booking
                 .Include(b => b.Facility)
                 .Include(b => b.Facility.Venue)
+                .Include(b => b.Facility.Sport)
                 .FirstOrDefaultAsync(m => m.BookingId == id);
             if (booking == null)
             {
@@ -66,6 +67,7 @@ namespace booking_facilities.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("BookingId,FacilityId,BookingDateTime,UserId")] Booking booking, [Bind("VenueId")] int VenueId, [Bind("SportId")] int SportId)
         {
+
             //Find facility that can be booked.
             var bookings = _context.Booking.Where(b => b.BookingDateTime.Equals(booking.BookingDateTime) && b.Facility.VenueId.Equals(VenueId) && b.Facility.SportId.Equals(SportId));
             var facilities = _context.Facility;
