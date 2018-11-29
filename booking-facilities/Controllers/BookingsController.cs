@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using booking_facilities.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.Net.Http;
+using booking_facilities.Services;
+using Newtonsoft.Json.Linq;
 
 namespace booking_facilities.Controllers
 {
@@ -14,12 +17,13 @@ namespace booking_facilities.Controllers
     public class BookingsController : Controller
     {
         private readonly booking_facilitiesContext _context;
+        private readonly IApiClient apiClient;
 
-        public BookingsController(booking_facilitiesContext context)
+        public BookingsController(booking_facilitiesContext context, IApiClient client)
         {
             _context = context;
+            apiClient = client;
         }
-
 
         // GET: Bookings
         public async Task<IActionResult> Index()
@@ -45,6 +49,11 @@ namespace booking_facilities.Controllers
             {
                 return NotFound();
             }
+
+            var response = await apiClient.GetAsync("https://docker2.aberfitness.biz/gatekeeper/api/Users/" + booking.UserId);
+            var json = await response.Content.ReadAsStringAsync();
+            dynamic data = JObject.Parse(json);
+            booking.UserId = data.email;
 
             return View(booking);
         }

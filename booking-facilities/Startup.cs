@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using booking_facilities.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -43,6 +44,9 @@ namespace booking_facilities
 
             var appConfig = Configuration.GetSection("booking-facilities");
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
+            services.AddHttpClient("gatekeeper");
+            services.AddSingleton<IApiClient, ApiClient>();
 
             services.AddAuthentication(options =>
             {

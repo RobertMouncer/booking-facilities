@@ -24,9 +24,6 @@
             <th>
                 @Html.DisplayNameFor(model => model.BookingDateTime)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UserId)
-            </th>
             <th></th>
         </tr>
     </thead>
@@ -45,9 +42,6 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.BookingDateTime)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.UserId)
                 </td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.BookingId">Edit</a> |
