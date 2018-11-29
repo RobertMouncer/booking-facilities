@@ -39,6 +39,7 @@ namespace booking_facilities.Controllers
             var booking = await _context.Booking
                 .Include(b => b.Facility)
                 .Include(b => b.Facility.Venue)
+                .Include(b => b.Facility.Sport)
                 .FirstOrDefaultAsync(m => m.BookingId == id);
             if (booking == null)
             {

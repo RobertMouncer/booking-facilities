@@ -26,7 +26,8 @@ namespace booking_facilities.Migrations
 
                     b.Property<int>("FacilityId");
 
-                    b.Property<int>("UserId");
+                    b.Property<string>("UserId")
+                        .IsRequired();
 
                     b.HasKey("BookingId");
 
