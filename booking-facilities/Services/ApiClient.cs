@@ -10,6 +10,7 @@ namespace booking_facilities.Services
     public interface IApiClient
     {
         Task<HttpResponseMessage> GetAsync(string path);
+        Task<HttpResponseMessage> PostAsync(string path, object payload);
     }
 
     public class ApiClient : IApiClient
@@ -21,7 +22,7 @@ namespace booking_facilities.Services
 
         public ApiClient(IHttpClientFactory httpClientFactory, IConfiguration configuration, ILogger<ApiClient> log)
         {
-            appConfig = configuration.GetSection("booking-facilities");
+            appConfig = configuration.GetSection("booking_facilities");
             discoveryCache = new DiscoveryCache(appConfig.GetValue<string>("GatekeeperUrl"));
             client = httpClientFactory.CreateClient("gatekeeper");
             logger = log;
@@ -60,6 +61,12 @@ namespace booking_facilities.Services
         {
             client.SetBearerToken(await GetTokenAsync());
             return await client.GetAsync(uri);
+        }
+
+        public async Task<HttpResponseMessage> PostAsync(string uri, object payload)
+        {
+            client.SetBearerToken(await GetTokenAsync());
+            return await client.PostAsJsonAsync(uri, payload);
         }
     }
 
