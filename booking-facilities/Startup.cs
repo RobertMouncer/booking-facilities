@@ -79,8 +79,12 @@ namespace booking_facilities
                     policy.AddAuthenticationSchemes("oidc", "Bearer");
                 });
             });
-           
-           services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Administrator", pb => pb.RequireClaim("user_type", "administrator"));
+
+            });
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.AddDbContext<booking_facilitiesContext>(options =>
                     options.UseMySql(Configuration.GetConnectionString("booking_facilitiesContext")));
