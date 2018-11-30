@@ -28,8 +28,36 @@ namespace booking_facilities.Controllers
         // GET: Bookings
         public async Task<IActionResult> Index()
         {
-            var booking_facilitiesContext = _context.Booking.Include(b => b.Facility).Include(b => b.Facility.Venue).Include(b => b.Facility.Sport);
-            return View(await booking_facilitiesContext.ToListAsync());
+            IQueryable<Booking> booking_facilitiesContext = _context.Booking.Include(b => b.Facility).Include(b => b.Facility.Venue).Include(b => b.Facility.Sport);
+
+            if (!User.Claims.FirstOrDefault(c => c.Type == "user_type").Value.Equals("administrator"))
+            {
+                booking_facilitiesContext = booking_facilitiesContext.Where(b => b.UserId.Equals(User.Claims.FirstOrDefault(c => c.Type == "sub").Value));
+            }
+
+            var bookingList = await booking_facilitiesContext.ToListAsync();
+
+            List<string> userList = new List<string>();
+            foreach(Booking b in bookingList)
+            {
+                userList.Add(b.UserId);
+            }
+            
+            var response = await apiClient.PostAsync("https://docker2.aberfitness.biz/gatekeeper/api/Users/Batch", userList.Distinct());
+            JArray jsonArrayOfUsers = JArray.Parse(await response.Content.ReadAsStringAsync());
+            foreach (Booking b in bookingList)
+            {
+                foreach (JObject j in jsonArrayOfUsers)
+                {
+                    if (b.UserId == j.GetValue("id").ToString())
+                    {
+                        b.UserId = j.GetValue("email").ToString();
+                    }
+                }
+            }
+
+            return View(bookingList);
+
         }
 
         // GET: Bookings/Details/5
@@ -222,11 +250,18 @@ namespace booking_facilities.Controllers
 
             var booking = await _context.Booking
                 .Include(b => b.Facility)
+                .Include(b => b.Facility.Venue)
+                .Include(b => b.Facility.Sport)
                 .FirstOrDefaultAsync(m => m.BookingId == id);
+
             if (booking == null)
             {
                 return NotFound();
             }
+            var response = await apiClient.GetAsync("https://docker2.aberfitness.biz/gatekeeper/api/Users/" + booking.UserId);
+            var json = await response.Content.ReadAsStringAsync();
+            dynamic data = JObject.Parse(json);
+            booking.UserId = data.email;
 
             return View(booking);
         }
