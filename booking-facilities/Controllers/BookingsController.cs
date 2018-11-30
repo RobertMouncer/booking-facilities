@@ -28,7 +28,13 @@ namespace booking_facilities.Controllers
         // GET: Bookings
         public async Task<IActionResult> Index()
         {
-            var booking_facilitiesContext = _context.Booking.Include(b => b.Facility).Include(b => b.Facility.Venue).Include(b => b.Facility.Sport);
+            IQueryable<Booking> booking_facilitiesContext = _context.Booking.Include(b => b.Facility).Include(b => b.Facility.Venue).Include(b => b.Facility.Sport);
+
+            if (!User.Claims.FirstOrDefault(c => c.Type == "user_type").Equals("administrator"))
+            {
+                booking_facilitiesContext = booking_facilitiesContext.Where(b => b.UserId.Equals(User.Claims.FirstOrDefault(c => c.Type == "sub").Value));
+            }
+
             return View(await booking_facilitiesContext.ToListAsync());
         }
 
@@ -50,7 +56,7 @@ namespace booking_facilities.Controllers
                 return NotFound();
             }
 
-            var response = await apiClient.GetAsync("https://docker2.aberfitness.biz/gatekeeper/api/Users/" + booking.UserId);
+            var response = await apiClient.GetAsync("https://docker2.aberfitness.biz/gatekeeper/api/Users/" + booking.UserId.ToString());
             var json = await response.Content.ReadAsStringAsync();
             dynamic data = JObject.Parse(json);
             booking.UserId = data.email;

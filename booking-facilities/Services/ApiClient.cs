@@ -21,7 +21,7 @@ namespace booking_facilities.Services
 
         public ApiClient(IHttpClientFactory httpClientFactory, IConfiguration configuration, ILogger<ApiClient> log)
         {
-            appConfig = configuration.GetSection("booking-facilities");
+            appConfig = configuration.GetSection("booking_facilities");
             discoveryCache = new DiscoveryCache(appConfig.GetValue<string>("GatekeeperUrl"));
             client = httpClientFactory.CreateClient("gatekeeper");
             logger = log;
