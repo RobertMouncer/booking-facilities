@@ -56,7 +56,7 @@ namespace booking_facilities.Controllers
                 return NotFound();
             }
 
-            var response = await apiClient.GetAsync("https://docker2.aberfitness.biz/gatekeeper/api/Users/" + booking.UserId.ToString());
+            var response = await apiClient.GetAsync("https://docker2.aberfitness.biz/gatekeeper/api/Users/" + booking.UserId);
             var json = await response.Content.ReadAsStringAsync();
             dynamic data = JObject.Parse(json);
             booking.UserId = data.email;
