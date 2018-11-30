@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace booking_facilities.Controllers
 {
-    [Authorize(AuthenticationSchemes = "oidc")]
+    [Authorize(AuthenticationSchemes = "oidc", Policy = "Administrator")]
     public class SportsController : Controller
     {
         private readonly booking_facilitiesContext _context;

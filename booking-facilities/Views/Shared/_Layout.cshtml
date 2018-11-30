@@ -29,9 +29,12 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
+                    @if (User.Claims.FirstOrDefault(c => c.Type == "user_type").Value.Equals("administrator"))
+                    {
                     <li><a asp-area="" asp-controller="Sports" asp-action="Index">Sports</a></li>
                     <li><a asp-area="" asp-controller="Venues" asp-action="Index">Venues</a></li>
                     <li><a asp-area="" asp-controller="Facilities" asp-action="Index">Facilities</a></li>
+                    }
                     <li><a asp-area="" asp-controller="Bookings" asp-action="Index">Bookings</a></li>
                 </ul>
             </div>
