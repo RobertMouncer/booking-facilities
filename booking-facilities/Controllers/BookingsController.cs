@@ -142,36 +142,18 @@ namespace booking_facilities.Controllers
             var bookings = _context.Booking.Where(b => b.BookingDateTime.Equals(booking.BookingDateTime) && b.Facility.VenueId.Equals(VenueId) && b.Facility.SportId.Equals(SportId));
             var facilities = _context.Facility;
             var faciltiesFiltered = facilities.Where(f => f.VenueId.Equals(VenueId) && f.SportId.Equals(SportId));
-            
-            bool facilityTaken = false;
 
-            foreach (Facility f in faciltiesFiltered) 
-            {
-                facilityTaken = false;
-                
-                foreach (Booking b in bookings)
-                {
-                    if (b.FacilityId == f.FacilityId) 
-                    {
-                        facilityTaken = true;
-                        break;
-                    }
-                }
-                if(!facilityTaken)
-                {
-                    booking.FacilityId = f.FacilityId;
-                    break;
-                }
-            }
+            booking.FacilityId = getFacility(VenueId, SportId, booking);
+
             //adds model errors if date input is not correct
             //checks date/time to be booked is after current date/time -> else add model error.
             //and adds model error if facilities are not available. 
-             if (DateTime.Compare(booking.BookingDateTime, DateTime.Now) <= 0)
+            if (DateTime.Compare(booking.BookingDateTime, DateTime.Now) <= 0)
             {
                 ModelState.AddModelError("BookingDateTime", "Date/Time is in the past. Please enter future Date/Time.");
             }
 
-            if (facilityTaken)
+            if (booking.FacilityId == -1)
             {
                 ModelState.AddModelError("BookingDateTime", "Date/Time is no longer available. Please try again.");
             }
@@ -220,27 +202,16 @@ namespace booking_facilities.Controllers
             var facilities = _context.Facility;
             var faciltiesFiltered = facilities.Where(f => f.VenueId.Equals(VenueId) && f.SportId.Equals(SportId));
 
-            bool facilityTaken = false;
+            booking.FacilityId = getFacility(VenueId, SportId, booking);
 
-            foreach (Facility f in faciltiesFiltered)
+            if (DateTime.Compare(booking.BookingDateTime, DateTime.Now) <= 0)
             {
-                facilityTaken = false;
-
-                foreach (Booking b in bookings)
-                {
-                    if (b.FacilityId == f.FacilityId)
-                    {
-                        facilityTaken = true;
-                        break;
-                    }
-                }
-                if (!facilityTaken)
-                {
-                    booking.FacilityId = f.FacilityId;
-                    break;
-                }
+                ModelState.AddModelError("BookingDateTime", "Date/Time is in the past. Please enter future Date/Time.");
             }
-
+            if (booking.FacilityId == -1)
+            {
+                ModelState.AddModelError("BookingDateTime", "Date/Time is no longer available. Please try again.");
+            }
             if (id != booking.BookingId)
             {
                 return NotFound();
@@ -311,6 +282,35 @@ namespace booking_facilities.Controllers
         private bool BookingExists(int id)
         {
             return _context.Booking.Any(e => e.BookingId == id);
+        }
+
+        private int getFacility(int VenueId, int SportId, Booking booking)
+        {
+            var facilities = _context.Facility.Where(f => f.VenueId.Equals(VenueId) && f.SportId.Equals(SportId));
+            var bookings = _context.Booking.Where(b => b.BookingDateTime.Equals(booking.BookingDateTime)
+                                                         && b.Facility.VenueId.Equals(VenueId)
+                                                         && b.Facility.SportId.Equals(SportId));
+            bool facilityTaken = false;
+
+            foreach (Facility f in facilities)
+            {
+                facilityTaken = false;
+
+                foreach (Booking b in bookings)
+                {
+                    if (b.FacilityId == f.FacilityId)
+                    {
+                        facilityTaken = true;
+                        break;
+                    }
+                }
+                if (!facilityTaken)
+                {
+                    return f.FacilityId;
+                }
+            }
+
+            return -1;
         }
     }
 }

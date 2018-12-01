@@ -82,10 +82,22 @@ namespace booking_facilities.Controllers
             return Ok(timeList);
         }
 
+
         // PUT: api/booking/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutBooking([FromRoute] int id, [FromBody] Booking booking)
+        [HttpPut("{id}/{venueId}/{sportId}")]
+        public async Task<IActionResult> PutBooking([FromRoute] int id, [FromRoute] int venueId, [FromRoute] int sportId, [FromBody] Booking booking)
         {
+            int facilityId = getFacility(venueId, sportId, booking);
+
+            if (DateTime.Compare(booking.BookingDateTime, DateTime.Now) <= 0)
+            {
+                ModelState.AddModelError("BookingDateTime", "Date/Time is in the past. Please enter future Date/Time.");
+            }
+            if (facilityId == -1)
+            {
+                ModelState.AddModelError("BookingDateTime", "Date/Time is no longer available. Please try again.");
+            }
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -114,13 +126,24 @@ namespace booking_facilities.Controllers
                 }
             }
 
-            return NoContent();
+            return Ok(booking);
         }
 
         // POST: api/booking
-        [HttpPost]
-        public async Task<IActionResult> PostBooking([FromBody] Booking booking)
+        [HttpPost("{venueId}/{sportId}")]
+        public async Task<IActionResult> PostBooking([FromRoute] int venueId, [FromRoute] int sportId, [FromBody] Booking booking)
         {
+            booking.FacilityId = getFacility(venueId, sportId, booking);
+            
+
+            if (DateTime.Compare(booking.BookingDateTime, DateTime.Now) <= 0)
+            {
+                ModelState.AddModelError("BookingDateTime", "Date/Time is in the past. Please enter future Date/Time.");
+            }
+            if (booking.FacilityId == -1)
+            {
+                ModelState.AddModelError("BookingDateTime", "Date/Time is no longer available. Please try again.");
+            }
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -156,6 +179,35 @@ namespace booking_facilities.Controllers
         private bool BookingExists(int id)
         {
             return _context.Booking.Any(e => e.BookingId == id);
+        }
+
+        private int getFacility(int venueId, int sportId, Booking booking)
+        {
+            var facilities = _context.Facility.Where(f => f.VenueId.Equals(venueId) && f.SportId.Equals(sportId));
+            var bookings = _context.Booking.Where(b => b.BookingDateTime.Equals(booking.BookingDateTime)
+                                                         && b.Facility.VenueId.Equals(venueId)
+                                                         && b.Facility.SportId.Equals(sportId));
+            bool facilityTaken = false;
+
+            foreach (Facility f in facilities)
+            {
+                facilityTaken = false;
+
+                foreach (Booking b in bookings)
+                {
+                    if (b.FacilityId == f.FacilityId)
+                    {
+                        facilityTaken = true;
+                        break;
+                    }
+                }
+                if (!facilityTaken)
+                {
+                    return f.FacilityId;
+                }
+            }
+
+            return -1;
         }
     }
 }
