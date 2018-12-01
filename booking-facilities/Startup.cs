@@ -16,19 +16,23 @@ using System.Net;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Authentication;
 using System.IdentityModel.Tokens.Jwt;
+using Serilog;
 
 namespace booking_facilities
 {
     public class Startup
     {
+        private readonly IConfiguration config;
         private readonly IConfigurationSection appConfig;
         private readonly IHostingEnvironment environment;
 
-        public Startup(IConfiguration configuration, IHostingEnvironment environment)
+        public Startup(IConfiguration config, IHostingEnvironment environment)
         {
-            Configuration = configuration;
             this.environment = environment;
-            this.appConfig = configuration.GetSection("Booking_Facilities");
+            this.config = config;
+            appConfig = this.config.GetSection("Booking_Facilities");
+
+            Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(config).CreateLogger();
         }
 
         public IConfiguration Configuration { get; }
@@ -87,7 +91,7 @@ namespace booking_facilities
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.AddDbContext<booking_facilitiesContext>(options =>
-                    options.UseMySql(Configuration.GetConnectionString("booking_facilitiesContext")));
+                    options.UseMySql(config.GetConnectionString("booking_facilitiesContext")));
 
             if (!environment.IsDevelopment())
             {

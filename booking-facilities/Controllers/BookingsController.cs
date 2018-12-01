@@ -86,11 +86,42 @@ namespace booking_facilities.Controllers
             return View(booking);
         }
 
+        // GET: Bookings/CreateBlockFacility
+        public IActionResult CreateBlockFacility()
+        {
+            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
+            ViewData["FacilityId"] = new SelectList(_context.Facility, "FacilityId", "FacilityName");
+            ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportName");
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateBlockFacility([Bind("BookingId,FacilityId,BookingDateTime,UserId,EndBookingDateTime")] Booking booking, [Bind("VenueId")] int VenueId, [Bind("SportId")] int SportId)
+        {
+            //checks:
+            //endDate after startDate
+            //check start date is after now
+            //Tasks:
+            //delete any bookings that clash with admin bookings.
+            ModelState.AddModelError("FacilityId", booking.Facility.ToString());
+            if (ModelState.IsValid)
+            {
+                _context.Add(booking);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+
+            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
+            ViewData["FacilityId"] = new SelectList(_context.Facility, "FacilityId", "FacilityName");
+            ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportName");
+            return View(booking);
+        }
+
         // GET: Bookings/Create
         public IActionResult Create()
         {
             ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
-            ViewData["FacilityId"] = new SelectList(_context.Facility, "FacilityId", "FacilityName");
             ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportName");
             return View();
         }
@@ -102,9 +133,10 @@ namespace booking_facilities.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("BookingId,FacilityId,BookingDateTime,UserId")] Booking booking, [Bind("VenueId")] int VenueId, [Bind("SportId")] int SportId)
+        public async Task<IActionResult> Create([Bind("BookingId,FacilityId,BookingDateTime,UserId,EndBookingDateTime")] Booking booking, [Bind("VenueId")] int VenueId, [Bind("SportId")] int SportId)
         {
-
+            
+            booking.EndBookingDateTime = booking.BookingDateTime.AddHours(1);
             booking.UserId = User.Claims.FirstOrDefault(c => c.Type == "sub").Value;
 
             var bookings = _context.Booking.Where(b => b.BookingDateTime.Equals(booking.BookingDateTime) && b.Facility.VenueId.Equals(VenueId) && b.Facility.SportId.Equals(SportId));
@@ -138,18 +170,19 @@ namespace booking_facilities.Controllers
             {
                 ModelState.AddModelError("BookingDateTime", "Date/Time is in the past. Please enter future Date/Time.");
             }
-            else if (facilityTaken)
+
+            if (facilityTaken)
             {
                 ModelState.AddModelError("BookingDateTime", "Date/Time is no longer available. Please try again.");
             }
-            else if(ModelState.IsValid)
+
+            if (ModelState.IsValid)
             {
                 _context.Add(booking);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
-            ViewData["FacilityId"] = new SelectList(facilities, "FacilityId", "FacilityName");
             ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportName");
             return View(booking);
         }
@@ -170,7 +203,6 @@ namespace booking_facilities.Controllers
                 return NotFound();
             }
             ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
-            ViewData["FacilityId"] = new SelectList(facilities, "FacilityId", "FacilityName");
             ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportName");
             return View(booking);
         }
@@ -180,7 +212,7 @@ namespace booking_facilities.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("BookingId,FacilityId,BookingDateTime,UserId")] Booking booking, [Bind("VenueId")] int VenueId, [Bind("SportId")] int SportId)
+        public async Task<IActionResult> Edit(int id, [Bind("BookingId,FacilityId,BookingDateTime,UserId,EndBookingDateTime")] Booking booking, [Bind("VenueId")] int VenueId, [Bind("SportId")] int SportId)
         {
             booking.UserId = User.Claims.FirstOrDefault(c => c.Type == "sub").Value;
 
@@ -235,7 +267,6 @@ namespace booking_facilities.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
-            ViewData["FacilityId"] = new SelectList(facilities, "FacilityId", "FacilityName");
             ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportName");
             return View(booking);
         }

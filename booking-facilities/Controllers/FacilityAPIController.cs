@@ -11,7 +11,8 @@ using Microsoft.AspNetCore.Authorization;
 namespace booking_facilities.Controllers
 {
     [Authorize(Policy = "APIPolicy")]
-    [Route("api/getFacilities")]
+
+    [Route("api/Facilities")]
     [ApiController]
     public class FacilityAPIController : ControllerBase
     {
@@ -27,6 +28,14 @@ namespace booking_facilities.Controllers
         public IEnumerable<Facility> GetFacility()
         {
             return _context.Facility;
+        }
+
+        [HttpGet("{venueId}/{sportId}")]
+        public IActionResult GetSport([FromRoute] int venueId, [FromRoute] int sportId)
+        {
+            var facilities = _context.Facility.Where(f => f.VenueId.Equals(venueId) && f.SportId.Equals(sportId));
+
+            return Ok(facilities.ToList());
         }
 
     }
