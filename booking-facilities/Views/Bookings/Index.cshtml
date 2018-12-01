@@ -7,7 +7,7 @@
 <h2>Index</h2>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">Create New</a> |
     @*@if (User.Claims.FirstOrDefault(c => c.Type == "user_type").Value.Equals("administrator"))*@
         <a asp-action="CreateBlockFacility">Block Facility</a>
 </p>
@@ -28,6 +28,9 @@
             </th>
             @if (User.Claims.FirstOrDefault(c => c.Type == "user_type").Value.Equals("administrator"))
             {
+                <th>
+                    @Html.DisplayNameFor(model => model.EndBookingDateTime)
+                </th>
                 <th>
                     @Html.DisplayNameFor(model => model.UserId)
                 </th>
@@ -55,15 +58,25 @@
             @if (User.Claims.FirstOrDefault(c => c.Type == "user_type").Value.Equals("administrator"))
             {
                 <td>
+                    @Html.DisplayFor(modelItem => item.EndBookingDateTime)
+                </td>
+                <td>
                     @Html.DisplayFor(modelItem => item.UserId)
                 </td>
             }
 
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.BookingId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.BookingId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.BookingId">Delete</a>
-            </td>
+                <td>
+                    @if (item.IsBlock)
+                    {
+                        <a asp-action="EditBlockFacility" asp-route-id="@item.BookingId">Edit</a>
+                    }
+                    else
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.BookingId">Edit</a>
+                    }
+                    | <a asp-action="Details" asp-route-id="@item.BookingId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.BookingId">Delete</a>
+                </td>
         </tr>
         }
     </tbody>

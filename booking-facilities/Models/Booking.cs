@@ -22,5 +22,6 @@ namespace booking_facilities.Models
         public virtual DateTime EndBookingDateTime { get; set; }
         [DisplayName("User Email")]
         public virtual String UserId { get; set; }
+        public virtual bool IsBlock { get; set; }
     }
 }

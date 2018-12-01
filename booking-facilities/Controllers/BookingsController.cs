@@ -99,15 +99,32 @@ namespace booking_facilities.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateBlockFacility([Bind("BookingId,FacilityId,BookingDateTime,UserId,EndBookingDateTime")] Booking booking, [Bind("VenueId")] int VenueId, [Bind("SportId")] int SportId)
         {
-            //checks:
-            //endDate after startDate
-            //check start date is after now
-            //Tasks:
-            //delete any bookings that clash with admin bookings.
-            ModelState.AddModelError("FacilityId", booking.Facility.ToString());
+            booking.IsBlock = true;
+
+            booking.UserId = User.Claims.FirstOrDefault(c => c.Type == "sub").Value;
+            var bookings = _context.Booking.Where(b => b.Facility.VenueId.Equals(VenueId) && b.Facility.SportId.Equals(SportId));
+
+            if (DateTime.Compare(booking.BookingDateTime, DateTime.Now) <= 0)
+            {
+                ModelState.AddModelError("BookingDateTime", "Date/Time is in the past. Please enter future Date/Time.");
+            }
+            if (DateTime.Compare(booking.EndBookingDateTime, booking.BookingDateTime) <= 0)
+            {
+                ModelState.AddModelError("EndBookingDateTime", "End Date/Time should be after the start Date/Time. Please re-enter Date/Time.");
+            }
             if (ModelState.IsValid)
             {
+
+                foreach(Booking b in bookings)
+                {
+                    if (DateTime.Compare(booking.BookingDateTime,b.BookingDateTime) <= 0 && DateTime.Compare(b.BookingDateTime, b.EndBookingDateTime.AddHours(-1)) <= 0)
+                    {
+                        _context.Remove(b);
+                    }
+                }
+
                 _context.Add(booking);
+
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -117,6 +134,24 @@ namespace booking_facilities.Controllers
             ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportName");
             return View(booking);
         }
+
+        public async Task<IActionResult> EditBlockFacility(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var booking = await _context.Booking.FindAsync(id);
+            if (booking == null)
+            {
+                return NotFound();
+            }
+            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
+            ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportName");
+            return View(booking);
+        }
+
 
         // GET: Bookings/Create
         public IActionResult Create()
@@ -172,8 +207,6 @@ namespace booking_facilities.Controllers
         // GET: Bookings/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            var facilities = _context.Facility;
-
             if (id == null)
             {
                 return NotFound();
@@ -221,6 +254,7 @@ namespace booking_facilities.Controllers
             {
                 try
                 {
+                    
                     _context.Update(booking);
                     await _context.SaveChangesAsync();
                 }
