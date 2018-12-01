@@ -52,6 +52,8 @@ namespace booking_facilities.Controllers
         [HttpGet("{date}/{venueId}/{sportId}")]
         public IActionResult GetTimes([FromRoute] DateTime date, [FromRoute] int venueId, [FromRoute] int sportId)
         {
+            //TO-DO check admin times - remove from list
+
             //get list of bookings to check for available times
             var bookings = _context.Booking.Where(b => b.Facility.VenueId.Equals(venueId) && b.Facility.SportId.Equals(sportId) && (DateTime.Compare(b.BookingDateTime.Date, date.Date)) == 0).ToList();
             //get list of facilites to check for available facility for this sport and venue

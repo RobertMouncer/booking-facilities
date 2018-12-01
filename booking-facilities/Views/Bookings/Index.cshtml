@@ -8,6 +8,8 @@
 
 <p>
     <a asp-action="Create">Create New</a>
+    @*@if (User.Claims.FirstOrDefault(c => c.Type == "user_type").Value.Equals("administrator"))*@
+        <a asp-action="CreateBlockFacility">Block Facility</a>
 </p>
 <table class="table">
     <thead>

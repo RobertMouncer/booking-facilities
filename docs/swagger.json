@@ -2,7 +2,9 @@
   "swagger": "2.0",
   "info": {
     "description": "This API is used to confirm match bookings for the AberFitness Ladder micro-service.",
-    "version": "1.4.0",
+
+    "version": "1.5.0",
+
     "title": "Booking-Facilities",
     "contact": {
       "name": "Robert",
@@ -310,7 +312,56 @@
         }
       }
     },
-    "/sports/getSportByVenue/{venueId}": {
+
+    "/facilities/{venueId}/{sportId}": {
+      "get": {
+        "tags": [
+          "Factilities"
+        ],
+        "summary": "Retrieve all facilities for specific venue and sport.",
+        "operationId": "findFacilites",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "venueId",
+            "in": "path",
+            "description": "venueId of venue for facilities to be returned.",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "sportId",
+            "in": "path",
+            "description": "sportId of sport for facilities to be returned.",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Facility"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid ID(s) supplied."
+          },
+          "404": {
+            "description": "Facility not found."
+          },
+          "405": {
+            "description": "Invalid input."
+          }
+        }
+      }
+    },
+    "/sports/getSportsByVenue/{venueId}": {
       "get": {
         "tags": [
           "Sports"
