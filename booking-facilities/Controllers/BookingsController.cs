@@ -135,7 +135,7 @@ namespace booking_facilities.Controllers
             return View(booking);
         }
 
-        public async Task<IActionResult> EditBlockFacility(int? id)
+        public async Task<IActionResult> EditBlockFacilities(int? id)
         {
             if (id == null)
             {
@@ -152,9 +152,14 @@ namespace booking_facilities.Controllers
             return View(booking);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditBlockFacilities(int id, [Bind("BookingId,FacilityId,BookingDateTime,UserId,EndBookingDateTime")] Booking booking, [Bind("VenueId")] int VenueId, [Bind("SportId")] int SportId)
+        {
+        }
 
-        // GET: Bookings/Create
-        public IActionResult Create()
+            // GET: Bookings/Create
+            public IActionResult Create()
         {
             ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
             ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportName");
