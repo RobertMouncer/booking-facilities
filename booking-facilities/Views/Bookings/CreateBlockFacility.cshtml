@@ -1,12 +1,12 @@
 ﻿@model booking_facilities.Models.Booking
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Block Facility";
 }
 
-<h2>Create</h2>
+<h2>Create Facility Block</h2>
 
-<h4>Booking</h4>
+<h4>Block a facility</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -20,13 +20,12 @@
 
             <div class="form-group">
                 @Html.LabelFor(m => m.Facility.SportId, new { @class = "control-label" })
-                @Html.DropDownList("SportId", (IEnumerable<SelectListItem>)ViewBag.SportId, new { @id = "sportDDL", @class = "form-control", @onchange = "updateFacilities()"})
+                @Html.DropDownList("SportId", (IEnumerable<SelectListItem>)ViewBag.SportId, new { @id = "sportDDL", @class = "form-control", @onchange = "updateFacilities()" })
             </div>
 
-
             <div class="form-group">
-                @Html.LabelFor(m => m.FacilityId, new { @class = "control-label" })
-                @Html.DropDownList("FacilityId", (IEnumerable<SelectListItem>)ViewBag.FacilityId, new { @id = "facilityDDL", @class = "form-control", @onchange = "getTimes()" })
+                <label asp-for="FacilityId" class="control-label"></label>
+                <select asp-for="FacilityId" class="form-control" asp-items="ViewBag.FacilityId" id="facilityDDL"></select>
                 <span asp-validation-for="FacilityId" class="text-danger"></span>
             </div>
 
@@ -61,15 +60,15 @@
                 <input asp-for="EndBookingDateTime" class="form-control" asp-items="ViewBag.EndBookingDateTime" id="EndBookingDateTime" readonly="readonly" />
                 <span asp-validation-for="EndBookingDateTime" class="text-danger"></span>
             </div>
+
             <p>Blocking a facility will remove all bookings made during the blocking period.</p>
+
             <div class="form-group">
-                <input type="submit" value="Create Block Facility" class="btn btn-default" id="submitButton" />
+                <input type="submit" value="Create Facility Block" class="btn btn-default" id="submitButton" />
             </div>
 
         </form>
-
     </div>
-
 </div>
 
 <div>
@@ -77,7 +76,6 @@
 </div>
 
 @section Scripts {
-
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
     <script>
@@ -87,10 +85,8 @@
         }
 
         function updateSports() {
-            document.getElementById("BookingDateId").value = document.getElementById("BookingDateTime").value = "";
             urlVenues = '@Url.Content("~/")' + "api/Sports/getSportsByVenue/"  + $("#venueDDL").val();
-           
-            
+
             $.ajax({
                 url: urlVenues,
                 success: function (json) {
@@ -100,7 +96,7 @@
                         items += "<option value='" + sport.sportId + "'>" + sport.sportName + "</option>";
                     })
                     $("#sportDDL").empty().html(items);
-
+                    updateFacilities();
                 }
             });
         }
@@ -138,9 +134,6 @@
             $("#endTimeDDL").empty().html(endTimes);
 
         }
-
-        
-
         updateSports();
         updateFacilities();
         populateTimes();

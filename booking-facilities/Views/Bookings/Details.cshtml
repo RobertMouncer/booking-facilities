@@ -43,6 +43,13 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.BookingId">Edit</a> |
+    @if (Model.IsBlock)
+    {
+        <a asp-action="EditBlockFacility" asp-route-id="@Model.BookingId">Edit</a>
+    }
+    else
+    {
+        <a asp-action="Edit" asp-route-id="@Model.BookingId">Edit</a>
+    } |
     <a asp-action="Index">Back to List</a>
 </div>

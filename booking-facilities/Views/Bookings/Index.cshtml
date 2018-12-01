@@ -34,6 +34,10 @@
                 <th>
                     @Html.DisplayNameFor(model => model.UserId)
                 </th>
+                <th>
+                    Booking Type
+                </th>
+
             }
 
             <th></th>
@@ -63,20 +67,32 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.UserId)
                 </td>
+                @if (item.IsBlock)
+                {
+                    <td>
+                        Block
+                    </td>
+                }
+                else
+                {
+                    <td>
+                        Booking
+                    </td>
+                }
             }
 
-                <td>
-                    @if (item.IsBlock)
-                    {
-                        <a asp-action="EditBlockFacility" asp-route-id="@item.BookingId">Edit</a>
-                    }
-                    else
-                    {
-                        <a asp-action="Edit" asp-route-id="@item.BookingId">Edit</a>
-                    }
-                    | <a asp-action="Details" asp-route-id="@item.BookingId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.BookingId">Delete</a>
-                </td>
+            <td>
+                @if (item.IsBlock)
+                {
+                    <a asp-action="EditBlockFacility" asp-route-id="@item.BookingId">Edit</a>
+                }
+                else
+                {
+                    <a asp-action="Edit" asp-route-id="@item.BookingId">Edit</a>
+                }
+                | <a asp-action="Details" asp-route-id="@item.BookingId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.BookingId">Delete</a>
+            </td>
         </tr>
         }
     </tbody>

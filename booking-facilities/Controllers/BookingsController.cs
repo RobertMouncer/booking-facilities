@@ -102,7 +102,7 @@ namespace booking_facilities.Controllers
             booking.IsBlock = true;
 
             booking.UserId = User.Claims.FirstOrDefault(c => c.Type == "sub").Value;
-            var bookings = _context.Booking.Where(b => b.Facility.VenueId.Equals(VenueId) && b.Facility.SportId.Equals(SportId));
+            var bookings = _context.Booking.Where(b => b.FacilityId.Equals(booking.FacilityId));
 
             if (DateTime.Compare(booking.BookingDateTime, DateTime.Now) <= 0)
             {
@@ -117,7 +117,8 @@ namespace booking_facilities.Controllers
 
                 foreach(Booking b in bookings)
                 {
-                    if (DateTime.Compare(booking.BookingDateTime,b.BookingDateTime) <= 0 && DateTime.Compare(b.BookingDateTime, b.EndBookingDateTime.AddHours(-1)) <= 0)
+                    //true if (new booking start time is before old booking start time) AND if (new booking end time is after old booking end time)
+                    if (DateTime.Compare(booking.BookingDateTime,b.BookingDateTime) <= 0 && DateTime.Compare(b.BookingDateTime, booking.EndBookingDateTime.AddHours(-1)) <= 0 && !b.IsBlock)
                     {
                         _context.Remove(b);
                     }
@@ -135,7 +136,7 @@ namespace booking_facilities.Controllers
             return View(booking);
         }
 
-        public async Task<IActionResult> EditBlockFacilities(int? id)
+        public async Task<IActionResult> EditBlockFacility(int? id)
         {
             if (id == null)
             {
@@ -143,23 +144,76 @@ namespace booking_facilities.Controllers
             }
 
             var booking = await _context.Booking.FindAsync(id);
+
             if (booking == null)
             {
                 return NotFound();
             }
             ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
+            ViewData["FacilityId"] = new SelectList(_context.Facility, "FacilityId", "FacilityName");
             ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportName");
             return View(booking);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditBlockFacilities(int id, [Bind("BookingId,FacilityId,BookingDateTime,UserId,EndBookingDateTime")] Booking booking, [Bind("VenueId")] int VenueId, [Bind("SportId")] int SportId)
+        public async Task<IActionResult> EditBlockFacility(int id, [Bind("BookingId,FacilityId,BookingDateTime,UserId,EndBookingDateTime")] Booking booking, [Bind("VenueId")] int VenueId, [Bind("SportId")] int SportId)
         {
+
+            //implement edit
+            //do times
+            booking.IsBlock = true;
+
+            booking.UserId = User.Claims.FirstOrDefault(c => c.Type == "sub").Value;
+
+            //must compare bookingId in where because you can't inspect a booking currently being edited WTF!!!!
+
+            var bookings = _context.Booking.Where(b => b.FacilityId.Equals(booking.FacilityId) && !b.BookingId.Equals(booking.BookingId));
+
+            if (DateTime.Compare(booking.BookingDateTime, DateTime.Now) <= 0)
+            {
+                ModelState.AddModelError("BookingDateTime", "Date/Time is in the past. Please enter future Date/Time.");
+            }
+            if (DateTime.Compare(booking.EndBookingDateTime, booking.BookingDateTime) <= 0)
+            {
+                ModelState.AddModelError("EndBookingDateTime", "End Date/Time should be after the start Date/Time. Please re-enter Date/Time.");
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    foreach (Booking b in bookings)
+                    {
+                        if (DateTime.Compare(booking.BookingDateTime, b.BookingDateTime) <= 0 && DateTime.Compare(b.BookingDateTime, booking.EndBookingDateTime.AddHours(-1)) <= 0 && !b.IsBlock)
+                        {
+                            _context.Remove(b);
+                        }
+                    }
+                        _context.Update(booking);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!BookingExists(booking.BookingId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
+            ViewData["FacilityId"] = new SelectList(_context.Facility, "FacilityId", "FacilityName");
+            ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportName");
+            return View(booking);
         }
 
             // GET: Bookings/Create
-            public IActionResult Create()
+        public IActionResult Create()
         {
             ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
             ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportName");
@@ -234,6 +288,7 @@ namespace booking_facilities.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("BookingId,FacilityId,BookingDateTime,UserId,EndBookingDateTime")] Booking booking, [Bind("VenueId")] int VenueId, [Bind("SportId")] int SportId)
         {
+            booking.EndBookingDateTime = booking.BookingDateTime.AddHours(1);
             booking.UserId = User.Claims.FirstOrDefault(c => c.Type == "sub").Value;
 
             var bookings = _context.Booking.Where(b => b.BookingDateTime.Equals(booking.BookingDateTime) && b.Facility.VenueId.Equals(VenueId) && b.Facility.SportId.Equals(SportId));
