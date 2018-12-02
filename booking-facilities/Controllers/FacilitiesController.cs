@@ -145,6 +145,8 @@ namespace booking_facilities.Controllers
             {
                 try
                 {
+                    var bookings = _context.Booking.Where(b => b.FacilityId.Equals(facility.FacilityId) && !b.IsBlock);
+                    _context.Booking.RemoveRange(bookings);
                     _context.Update(facility);
                     await _context.SaveChangesAsync();
                 }
