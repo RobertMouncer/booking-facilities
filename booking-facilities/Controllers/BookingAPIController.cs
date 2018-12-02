@@ -52,34 +52,65 @@ namespace booking_facilities.Controllers
         [HttpGet("{date}/{venueId}/{sportId}")]
         public IActionResult GetTimes([FromRoute] DateTime date, [FromRoute] int venueId, [FromRoute] int sportId)
         {
-            //TO-DO check admin times - remove from list
+            var bookings = _context.Booking.Where(b => b.Facility.VenueId.Equals(venueId) 
+                                                    && b.Facility.SportId.Equals(sportId) 
+                                                    && !b.IsBlock
+                                                    && (DateTime.Compare(b.BookingDateTime.Date, date.Date)) == 0)
+                                                    .ToList();
 
-            //get list of bookings to check for available times
-            var bookings = _context.Booking.Where(b => b.Facility.VenueId.Equals(venueId) && b.Facility.SportId.Equals(sportId) && (DateTime.Compare(b.BookingDateTime.Date, date.Date)) == 0).ToList();
-            //get list of facilites to check for available facility for this sport and venue
+            var blockings = _context.Booking.Where(b => b.Facility.VenueId.Equals(venueId) 
+                                                    && b.Facility.SportId.Equals(sportId) 
+                                                    && b.IsBlock
+                                                    && DateTime.Compare(b.BookingDateTime.Date,date.Date) <= 0
+                                                    && DateTime.Compare(date.Date,b.EndBookingDateTime.Date) <= 0)
+                                                    .ToList();
+
             var facilities = _context.Facility.Where(f => f.VenueId.Equals(venueId) && f.SportId.Equals(sportId));
+
             var timeList = new List<DateTime>();
+
             int dayStartsAt = 9;
             int hoursOpen = 12;
-            int facilitiesLength = facilities.Count();
-            int countBookings = 0;
+            int[] timeSlots = new int[hoursOpen];
 
-            date = date.AddHours(dayStartsAt);
+            foreach (Facility f in facilities)
+            {
+                for (int i = 0; i < hoursOpen; i++)
+                {
+                    foreach (Booking bloc in blockings)
+                    {
+                        // if block datetime starts before/at and ends after hour slot
+                        // add one to this hour slot's unavailability factor
+                        if((DateTime.Compare(bloc.BookingDateTime, date.AddHours(i+dayStartsAt)) <= 0) 
+                            && (DateTime.Compare(date.AddHours(i+dayStartsAt), bloc.EndBookingDateTime.AddHours(-1)) <= 0)
+                            && bloc.FacilityId.Equals(f.FacilityId))
+                        {
+                            timeSlots[i]++;
+                            break;
+                        }
+                    }
+                    foreach (Booking book in bookings)
+                    {
+                        if ((DateTime.Compare(book.BookingDateTime, date.AddHours(i + dayStartsAt)) == 0)
+                            && book.FacilityId.Equals(f.FacilityId))
+                        {
+                            timeSlots[i]++;
+                            break;
+                        }
+                    }
+                }
+            }
 
-            //iterate through each hour that the facility can be open
-            //count number of bookings for each facility -> if count is equal to number of facilites then this time is not available
             for (int i = 0; i < hoursOpen; i++)
             {
-                countBookings = bookings.Count(b => b.BookingDateTime.Equals(date));
-                //if count is less than number of facilites then this time is available
-                if (countBookings < facilitiesLength)
+                if (timeSlots[i] < facilities.Count())
                 {
-                    timeList.Add(date);
-                }
-                date = date.AddHours(1);
+                    timeList.Add(date.AddHours(i + dayStartsAt));
+                } 
             }
 
             return Ok(timeList);
+
         }
 
 
@@ -181,24 +212,45 @@ namespace booking_facilities.Controllers
             return _context.Booking.Any(e => e.BookingId == id);
         }
 
-        private int getFacility(int venueId, int sportId, Booking booking)
+
+        private int getFacility(int VenueId, int SportId, Booking booking)
         {
-            var facilities = _context.Facility.Where(f => f.VenueId.Equals(venueId) && f.SportId.Equals(sportId));
+            var facilities = _context.Facility.Where(f => f.VenueId.Equals(VenueId) && f.SportId.Equals(SportId));
+
             var bookings = _context.Booking.Where(b => b.BookingDateTime.Equals(booking.BookingDateTime)
-                                                         && b.Facility.VenueId.Equals(venueId)
-                                                         && b.Facility.SportId.Equals(sportId));
+                                                         && b.Facility.VenueId.Equals(VenueId)
+                                                         && b.Facility.SportId.Equals(SportId)
+                                                         && !b.IsBlock);
+
+            var blockings = _context.Booking.Where(b => b.Facility.VenueId.Equals(VenueId)
+                                                         && b.Facility.SportId.Equals(SportId)
+                                                         && b.IsBlock
+                                                         && DateTime.Compare(b.BookingDateTime, booking.BookingDateTime) <= 0
+                                                         && DateTime.Compare(booking.BookingDateTime, b.EndBookingDateTime.AddHours(-1)) <= 0);
+
             bool facilityTaken = false;
 
             foreach (Facility f in facilities)
             {
                 facilityTaken = false;
 
-                foreach (Booking b in bookings)
+                foreach (Booking book in bookings)
                 {
-                    if (b.FacilityId == f.FacilityId)
+                    if (book.FacilityId == f.FacilityId)
                     {
                         facilityTaken = true;
                         break;
+                    }
+                }
+                if (!facilityTaken)
+                {
+                    foreach (Booking bloc in blockings)
+                    {
+                        if (bloc.FacilityId == f.FacilityId)
+                        {
+                            facilityTaken = true;
+                            break;
+                        }
                     }
                 }
                 if (!facilityTaken)

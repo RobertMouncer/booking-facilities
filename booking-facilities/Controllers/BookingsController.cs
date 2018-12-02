@@ -32,7 +32,7 @@ namespace booking_facilities.Controllers
 
             if (!User.Claims.FirstOrDefault(c => c.Type == "user_type").Value.Equals("administrator"))
             {
-                booking_facilitiesContext = booking_facilitiesContext.Where(b => b.UserId.Equals(User.Claims.FirstOrDefault(c => c.Type == "sub").Value));
+                booking_facilitiesContext = booking_facilitiesContext.Where(b => b.UserId.Equals(User.Claims.FirstOrDefault(c => c.Type == "sub").Value) || b.IsBlock);
             }
 
             var bookingList = await booking_facilitiesContext.ToListAsync();
@@ -87,6 +87,7 @@ namespace booking_facilities.Controllers
         }
 
         // GET: Bookings/CreateBlockFacility
+        [Authorize(Policy = "Administrator")]
         public IActionResult CreateBlockFacility()
         {
             ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
@@ -97,17 +98,36 @@ namespace booking_facilities.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "Administrator")]
         public async Task<IActionResult> CreateBlockFacility([Bind("BookingId,FacilityId,BookingDateTime,UserId,EndBookingDateTime")] Booking booking, [Bind("VenueId")] int VenueId, [Bind("SportId")] int SportId)
         {
-            //checks:
-            //endDate after startDate
-            //check start date is after now
-            //Tasks:
-            //delete any bookings that clash with admin bookings.
-            ModelState.AddModelError("FacilityId", booking.Facility.ToString());
+            booking.IsBlock = true;
+
+            booking.UserId = User.Claims.FirstOrDefault(c => c.Type == "sub").Value;
+            var bookings = _context.Booking.Where(b => b.FacilityId.Equals(booking.FacilityId));
+
+            if (DateTime.Compare(booking.BookingDateTime, DateTime.Now) <= 0)
+            {
+                ModelState.AddModelError("BookingDateTime", "Date/Time is in the past. Please enter future Date/Time.");
+            }
+            if (DateTime.Compare(booking.EndBookingDateTime, booking.BookingDateTime) <= 0)
+            {
+                ModelState.AddModelError("EndBookingDateTime", "End Date/Time should be after the start Date/Time. Please re-enter Date/Time.");
+            }
             if (ModelState.IsValid)
             {
+
+                foreach(Booking b in bookings)
+                {
+                    //true if (new booking start time is before old booking start time) AND if (new booking end time is after old booking end time)
+                    if (DateTime.Compare(booking.BookingDateTime,b.BookingDateTime) <= 0 && DateTime.Compare(b.BookingDateTime, booking.EndBookingDateTime.AddHours(-1)) <= 0 && !b.IsBlock)
+                    {
+                        _context.Remove(b);
+                    }
+                }
+
                 _context.Add(booking);
+
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -118,7 +138,85 @@ namespace booking_facilities.Controllers
             return View(booking);
         }
 
-        // GET: Bookings/Create
+        [Authorize(Policy = "Administrator")]
+        public async Task<IActionResult> EditBlockFacility(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var booking = await _context.Booking.FindAsync(id);
+
+            if (booking == null)
+            {
+                return NotFound();
+            }
+            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
+            ViewData["FacilityId"] = new SelectList(_context.Facility, "FacilityId", "FacilityName");
+            ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportName");
+            return View(booking);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Policy = "Administrator")]
+        public async Task<IActionResult> EditBlockFacility(int id, [Bind("BookingId,FacilityId,BookingDateTime,UserId,EndBookingDateTime")] Booking booking, [Bind("VenueId")] int VenueId, [Bind("SportId")] int SportId)
+        {
+
+            //implement edit
+            //do times
+            booking.IsBlock = true;
+
+            booking.UserId = User.Claims.FirstOrDefault(c => c.Type == "sub").Value;
+
+            //must compare bookingId in where because you can't inspect a booking currently being edited WTF!!!!
+
+            var bookings = _context.Booking.Where(b => b.FacilityId.Equals(booking.FacilityId) && !b.BookingId.Equals(booking.BookingId));
+
+            if (DateTime.Compare(booking.BookingDateTime, DateTime.Now) <= 0)
+            {
+                ModelState.AddModelError("BookingDateTime", "Date/Time is in the past. Please enter future Date/Time.");
+            }
+            if (DateTime.Compare(booking.EndBookingDateTime, booking.BookingDateTime) <= 0)
+            {
+                ModelState.AddModelError("EndBookingDateTime", "End Date/Time should be after the start Date/Time. Please re-enter Date/Time.");
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    foreach (Booking b in bookings)
+                    {
+                        if (DateTime.Compare(booking.BookingDateTime, b.BookingDateTime) <= 0 && DateTime.Compare(b.BookingDateTime, booking.EndBookingDateTime.AddHours(-1)) <= 0 && !b.IsBlock)
+                        {
+                            _context.Remove(b);
+                        }
+                    }
+                        _context.Update(booking);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!BookingExists(booking.BookingId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
+            ViewData["FacilityId"] = new SelectList(_context.Facility, "FacilityId", "FacilityName");
+            ViewData["SportId"] = new SelectList(_context.Sport, "SportId", "SportName");
+            return View(booking);
+        }
+
+            // GET: Bookings/Create
         public IActionResult Create()
         {
             ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
@@ -172,8 +270,6 @@ namespace booking_facilities.Controllers
         // GET: Bookings/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            var facilities = _context.Facility;
-
             if (id == null)
             {
                 return NotFound();
@@ -196,6 +292,7 @@ namespace booking_facilities.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("BookingId,FacilityId,BookingDateTime,UserId,EndBookingDateTime")] Booking booking, [Bind("VenueId")] int VenueId, [Bind("SportId")] int SportId)
         {
+            booking.EndBookingDateTime = booking.BookingDateTime.AddHours(1);
             booking.UserId = User.Claims.FirstOrDefault(c => c.Type == "sub").Value;
 
             var bookings = _context.Booking.Where(b => b.BookingDateTime.Equals(booking.BookingDateTime) && b.Facility.VenueId.Equals(VenueId) && b.Facility.SportId.Equals(SportId));
@@ -221,6 +318,7 @@ namespace booking_facilities.Controllers
             {
                 try
                 {
+                    
                     _context.Update(booking);
                     await _context.SaveChangesAsync();
                 }
@@ -245,10 +343,12 @@ namespace booking_facilities.Controllers
         // GET: Bookings/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+
             if (id == null)
             {
                 return NotFound();
             }
+            
 
             var booking = await _context.Booking
                 .Include(b => b.Facility)
@@ -256,10 +356,18 @@ namespace booking_facilities.Controllers
                 .Include(b => b.Facility.Sport)
                 .FirstOrDefaultAsync(m => m.BookingId == id);
 
+            if (User.Claims.FirstOrDefault(c => c.Type == "sub").Value != booking.UserId 
+                && !User.Claims.FirstOrDefault(c => c.Type == "user_type").Value.Equals("administrator"))
+            {
+                return Unauthorized();
+            }
+
+
             if (booking == null)
             {
                 return NotFound();
             }
+            
             var response = await apiClient.GetAsync("https://docker2.aberfitness.biz/gatekeeper/api/Users/" + booking.UserId);
             var json = await response.Content.ReadAsStringAsync();
             dynamic data = JObject.Parse(json);
@@ -287,21 +395,41 @@ namespace booking_facilities.Controllers
         private int getFacility(int VenueId, int SportId, Booking booking)
         {
             var facilities = _context.Facility.Where(f => f.VenueId.Equals(VenueId) && f.SportId.Equals(SportId));
+
             var bookings = _context.Booking.Where(b => b.BookingDateTime.Equals(booking.BookingDateTime)
                                                          && b.Facility.VenueId.Equals(VenueId)
-                                                         && b.Facility.SportId.Equals(SportId));
+                                                         && b.Facility.SportId.Equals(SportId)
+                                                         && !b.IsBlock);
+
+            var blockings = _context.Booking.Where(b => b.Facility.VenueId.Equals(VenueId)
+                                                         && b.Facility.SportId.Equals(SportId)
+                                                         && b.IsBlock
+                                                         && DateTime.Compare(b.BookingDateTime, booking.BookingDateTime) <= 0
+                                                         && DateTime.Compare(booking.BookingDateTime, b.EndBookingDateTime.AddHours(-1)) <= 0);
+
             bool facilityTaken = false;
 
             foreach (Facility f in facilities)
             {
                 facilityTaken = false;
 
-                foreach (Booking b in bookings)
+                foreach (Booking book in bookings)
                 {
-                    if (b.FacilityId == f.FacilityId)
+                    if (book.FacilityId == f.FacilityId)
                     {
                         facilityTaken = true;
                         break;
+                    }
+                }
+                if (!facilityTaken)
+                {
+                    foreach (Booking bloc in blockings)
+                    {
+                        if (bloc.FacilityId == f.FacilityId)
+                        {
+                            facilityTaken = true;
+                            break;
+                        }
                     }
                 }
                 if (!facilityTaken)

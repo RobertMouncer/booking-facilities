@@ -2,9 +2,7 @@
   "swagger": "2.0",
   "info": {
     "description": "This API is used to confirm match bookings for the AberFitness Ladder micro-service.",
-
-    "version": "1.5.0",
-
+    "version": "1.6.0",
     "title": "Booking-Facilities",
     "contact": {
       "name": "Robert",
@@ -312,7 +310,6 @@
         }
       }
     },
-
     "/facilities/{venueId}/{sportId}": {
       "get": {
         "tags": [
@@ -440,7 +437,8 @@
         "facilityId",
         "facilityName",
         "venue",
-        "sport"
+        "sport",
+        "isBlock"
       ],
       "properties": {
         "facilityId": {
@@ -456,6 +454,9 @@
         },
         "sport": {
           "$ref": "#/definitions/Sport"
+        },
+        "isBlock": {
+          "type": "boolean"
         }
       }
     },

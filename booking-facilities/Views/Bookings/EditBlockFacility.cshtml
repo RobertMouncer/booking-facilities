@@ -1,17 +1,18 @@
 ﻿@model booking_facilities.Models.Booking
 
 @{
-    ViewData["Title"] = "Create Block Facility";
+    ViewData["Title"] = "Edit Block Facility";
 }
 
-<h2>Create Facility Block</h2>
+<h2>Update Facility Block</h2>
 
 <h4>Block a facility</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="CreateBlockFacility">
+        <form asp-action="EditBlockFacility">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="BookingId" />
 
             <div class="form-group">
                 @Html.LabelFor(m => m.Facility.VenueId, new { @class = "control-label" })
@@ -64,7 +65,7 @@
             <p>Blocking a facility will remove all bookings made during the blocking period.</p>
 
             <div class="form-group">
-                <input type="submit" value="Create Facility Block" class="btn btn-default" id="submitButton" />
+                <input type="submit" value="Update Facility Block" class="btn btn-default" />
             </div>
 
         </form>
