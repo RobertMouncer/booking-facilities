@@ -26,10 +26,10 @@
                 @Html.DisplayNameFor(model => model.Facility)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Facility.Venue)
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["VenueSortParm"]">@Html.DisplayNameFor(model => model.Facility.Venue)</a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.BookingDateTime)
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["DateSortParm"]">@Html.DisplayNameFor(model => model.BookingDateTime)</a>
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.EndBookingDateTime)
@@ -40,8 +40,8 @@
             @if (User.Claims.FirstOrDefault(c => c.Type == "user_type").Value.Equals("administrator"))
             {
                 <th>
-                    @Html.DisplayNameFor(model => model.UserId)
-                </th>
+                    <a asp-action="Index" asp-route-sortOrder="@ViewData["UserSortParm"]">@Html.DisplayNameFor(model => model.UserId)</a>
+</th>
 
             }
 

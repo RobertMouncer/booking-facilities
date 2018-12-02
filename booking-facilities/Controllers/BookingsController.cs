@@ -26,13 +26,38 @@ namespace booking_facilities.Controllers
         }
 
         // GET: Bookings
-        public async Task<IActionResult> Index(int? page)
+        public async Task<IActionResult> Index(int? page, string sortOrder)
         {
+            ViewData["DateSortParm"] = sortOrder == "Date" ? "date_desc" : "Date";
+            ViewData["VenueSortParm"] = sortOrder == "Venue" ? "venue_desc" : "Venue";
+            ViewData["UserSortParm"] = sortOrder == "User" ? "user_desc" : "User";
             IQueryable<Booking> booking_facilitiesContext = _context.Booking.Include(b => b.Facility).Include(b => b.Facility.Venue).Include(b => b.Facility.Sport);
 
             if (!User.Claims.FirstOrDefault(c => c.Type == "user_type").Value.Equals("administrator"))
             {
                 booking_facilitiesContext = booking_facilitiesContext.Where(b => b.UserId.Equals(User.Claims.FirstOrDefault(c => c.Type == "sub").Value) || b.IsBlock);
+            }
+            switch (sortOrder)
+            {
+                case "date_desc":
+                    booking_facilitiesContext = booking_facilitiesContext.OrderByDescending(b => b.BookingDateTime);
+                    break;
+                case "Venue":
+                    booking_facilitiesContext = booking_facilitiesContext.OrderBy(b => b.Facility.Venue);
+                    break;
+                case "venue_desc":
+                    booking_facilitiesContext = booking_facilitiesContext.OrderByDescending(b => b.Facility.Venue);
+                    break;
+                case "User":
+                    booking_facilitiesContext = booking_facilitiesContext.OrderBy(b => b.UserId);
+                    break;
+                case "user_desc":
+                    booking_facilitiesContext = booking_facilitiesContext.OrderByDescending(b => b.UserId);
+                    break;
+                default:
+                    booking_facilitiesContext = booking_facilitiesContext.OrderBy(b => b.BookingDateTime);
+                    break;
+
             }
 
             var bookingList = await booking_facilitiesContext.ToListAsync();
@@ -55,6 +80,8 @@ namespace booking_facilities.Controllers
                     }
                 }
             }
+
+            
             var pageNumber = page ?? 1; // if no page was specified in the querystring, default to the first page (1)
             var bookingsPerPage = 10;
             var onePageOfBookings = bookingList.ToPagedList(pageNumber, bookingsPerPage); // will only contain 25 products max because of the pageSize

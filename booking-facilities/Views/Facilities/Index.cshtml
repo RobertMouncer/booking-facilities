@@ -18,11 +18,11 @@
                 @Html.DisplayNameFor(model => model.FacilityName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Venue)
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["VenueSortParm"]">@Html.DisplayNameFor(model => model.Venue)</a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Sport)
-            </th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["SportSortParm"]">@Html.DisplayNameFor(model => model.Sport)</a>
+</th>
             <th></th>
         </tr>
     </thead>
