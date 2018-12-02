@@ -35,6 +35,18 @@
             @Html.DisplayFor(model => model.BookingDateTime)
         </dd>
         <dt>
+            @Html.DisplayNameFor(model => model.EndBookingDateTime)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.EndBookingDateTime)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IsBlock)
+        </dt>
+        <dd>
+            @(Model.IsBlock ? "Block" : "Booking")
+        </dd>
+        <dt>
             @Html.DisplayNameFor(model => model.UserId)
         </dt>
         <dd>
@@ -43,11 +55,11 @@
     </dl>
 </div>
 <div>
-    @if (Model.IsBlock)
+    @if(User.Claims.FirstOrDefault(c => c.Type == "user_type").Value.Equals("administrator") && Model.IsBlock)
     {
         <a asp-action="EditBlockFacility" asp-route-id="@Model.BookingId">Edit</a>
     }
-    else
+    else if (!Model.IsBlock)
     {
         <a asp-action="Edit" asp-route-id="@Model.BookingId">Edit</a>
     } |

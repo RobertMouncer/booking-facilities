@@ -32,7 +32,7 @@ namespace booking_facilities.Controllers
 
             if (!User.Claims.FirstOrDefault(c => c.Type == "user_type").Value.Equals("administrator"))
             {
-                booking_facilitiesContext = booking_facilitiesContext.Where(b => b.UserId.Equals(User.Claims.FirstOrDefault(c => c.Type == "sub").Value));
+                booking_facilitiesContext = booking_facilitiesContext.Where(b => b.UserId.Equals(User.Claims.FirstOrDefault(c => c.Type == "sub").Value) || b.IsBlock);
             }
 
             var bookingList = await booking_facilitiesContext.ToListAsync();
@@ -87,6 +87,7 @@ namespace booking_facilities.Controllers
         }
 
         // GET: Bookings/CreateBlockFacility
+        [Authorize(Policy = "Administrator")]
         public IActionResult CreateBlockFacility()
         {
             ViewData["VenueId"] = new SelectList(_context.Venue, "VenueId", "VenueName");
@@ -97,6 +98,7 @@ namespace booking_facilities.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "Administrator")]
         public async Task<IActionResult> CreateBlockFacility([Bind("BookingId,FacilityId,BookingDateTime,UserId,EndBookingDateTime")] Booking booking, [Bind("VenueId")] int VenueId, [Bind("SportId")] int SportId)
         {
             booking.IsBlock = true;
@@ -136,6 +138,7 @@ namespace booking_facilities.Controllers
             return View(booking);
         }
 
+        [Authorize(Policy = "Administrator")]
         public async Task<IActionResult> EditBlockFacility(int? id)
         {
             if (id == null)
@@ -157,6 +160,7 @@ namespace booking_facilities.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = "Administrator")]
         public async Task<IActionResult> EditBlockFacility(int id, [Bind("BookingId,FacilityId,BookingDateTime,UserId,EndBookingDateTime")] Booking booking, [Bind("VenueId")] int VenueId, [Bind("SportId")] int SportId)
         {
 
@@ -339,10 +343,12 @@ namespace booking_facilities.Controllers
         // GET: Bookings/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+
             if (id == null)
             {
                 return NotFound();
             }
+            
 
             var booking = await _context.Booking
                 .Include(b => b.Facility)
@@ -350,10 +356,18 @@ namespace booking_facilities.Controllers
                 .Include(b => b.Facility.Sport)
                 .FirstOrDefaultAsync(m => m.BookingId == id);
 
+            if (User.Claims.FirstOrDefault(c => c.Type == "sub").Value != booking.UserId 
+                && !User.Claims.FirstOrDefault(c => c.Type == "user_type").Value.Equals("administrator"))
+            {
+                return Unauthorized();
+            }
+
+
             if (booking == null)
             {
                 return NotFound();
             }
+            
             var response = await apiClient.GetAsync("https://docker2.aberfitness.biz/gatekeeper/api/Users/" + booking.UserId);
             var json = await response.Content.ReadAsStringAsync();
             dynamic data = JObject.Parse(json);
@@ -381,21 +395,41 @@ namespace booking_facilities.Controllers
         private int getFacility(int VenueId, int SportId, Booking booking)
         {
             var facilities = _context.Facility.Where(f => f.VenueId.Equals(VenueId) && f.SportId.Equals(SportId));
+
             var bookings = _context.Booking.Where(b => b.BookingDateTime.Equals(booking.BookingDateTime)
                                                          && b.Facility.VenueId.Equals(VenueId)
-                                                         && b.Facility.SportId.Equals(SportId));
+                                                         && b.Facility.SportId.Equals(SportId)
+                                                         && !b.IsBlock);
+
+            var blockings = _context.Booking.Where(b => b.Facility.VenueId.Equals(VenueId)
+                                                         && b.Facility.SportId.Equals(SportId)
+                                                         && b.IsBlock
+                                                         && DateTime.Compare(b.BookingDateTime, booking.BookingDateTime) <= 0
+                                                         && DateTime.Compare(booking.BookingDateTime, b.EndBookingDateTime.AddHours(-1)) <= 0);
+
             bool facilityTaken = false;
 
             foreach (Facility f in facilities)
             {
                 facilityTaken = false;
 
-                foreach (Booking b in bookings)
+                foreach (Booking book in bookings)
                 {
-                    if (b.FacilityId == f.FacilityId)
+                    if (book.FacilityId == f.FacilityId)
                     {
                         facilityTaken = true;
                         break;
+                    }
+                }
+                if (!facilityTaken)
+                {
+                    foreach (Booking bloc in blockings)
+                    {
+                        if (bloc.FacilityId == f.FacilityId)
+                        {
+                            facilityTaken = true;
+                            break;
+                        }
                     }
                 }
                 if (!facilityTaken)
