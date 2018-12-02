@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Net.Http;
 using booking_facilities.Services;
 using Newtonsoft.Json.Linq;
-
+using X.PagedList;
 namespace booking_facilities.Controllers
 {
     [Authorize(AuthenticationSchemes = "oidc")]
@@ -26,7 +26,7 @@ namespace booking_facilities.Controllers
         }
 
         // GET: Bookings
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? page)
         {
             IQueryable<Booking> booking_facilitiesContext = _context.Booking.Include(b => b.Facility).Include(b => b.Facility.Venue).Include(b => b.Facility.Sport);
 
@@ -55,8 +55,12 @@ namespace booking_facilities.Controllers
                     }
                 }
             }
+            var pageNumber = page ?? 1; // if no page was specified in the querystring, default to the first page (1)
+            var bookingsPerPage = 10;
+            var onePageOfBookings = bookingList.ToPagedList(pageNumber, bookingsPerPage); // will only contain 25 products max because of the pageSize
 
-            return View(bookingList);
+            ViewBag.onePageOfBookings = onePageOfBookings;
+            return View();
 
         }
 

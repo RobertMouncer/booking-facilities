@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using booking_facilities.Models;
 using Microsoft.AspNetCore.Authorization;
+using X.PagedList;
 
 namespace booking_facilities.Controllers
 {
@@ -21,9 +22,18 @@ namespace booking_facilities.Controllers
         }
 
         // GET: Venues
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? page)
         {
-            return View(await _context.Venue.ToListAsync());
+            var venues = await _context.Venue.ToListAsync();
+            var venueList = await venues.ToListAsync();
+
+            var pageNumber = page ?? 1; // if no page was specified in the querystring, default to the first page (1)
+            var venuesPerPage = 10;
+
+            var onePageOfVenue = venueList.ToPagedList(pageNumber, venuesPerPage); // will only contain 25 products max because of the pageSize
+
+            ViewBag.onePageOfVenue = onePageOfVenue;
+            return View();
         }
 
         // GET: Venues/Details/5
