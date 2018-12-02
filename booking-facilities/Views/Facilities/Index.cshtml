@@ -1,5 +1,7 @@
 ﻿@model IEnumerable<booking_facilities.Models.Facility>
-
+@using X.PagedList.Mvc.Core;
+@using X.PagedList;
+<link href="/Content/PagedList.css" rel="stylesheet" type="text/css" />
 @{
     ViewData["Title"] = "Index";
 }
@@ -25,23 +27,25 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.FacilityName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Venue.VenueName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Sport.SportName)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.FacilityId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.FacilityId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.FacilityId">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in ViewBag.onePageOfFacilities)
+        {
+            <tr>
+                <td>
+                    @item.FacilityName
+                </td>
+                <td>
+                    @item.Venue.VenueName
+                </td>
+                <td>
+                    @item.Sport.SportName
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.FacilityId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.FacilityId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.FacilityId">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+@Html.PagedListPager((IPagedList)ViewBag.onePageOfFacilities, page => Url.Action("Index", new { page }))
