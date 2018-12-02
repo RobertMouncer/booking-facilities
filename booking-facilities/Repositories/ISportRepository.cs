@@ -14,6 +14,6 @@ namespace booking_facilities.Repositories
         Task<Sport> AddAsync(Sport sport);
         Task<Sport> UpdateAsync(Sport sport);
         Task<Sport> DeleteAsync(Sport sport);
-        bool sportIdExist(int id);
+        bool SportIdExists(int id);
     }
 }

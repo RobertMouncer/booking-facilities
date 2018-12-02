@@ -61,7 +61,7 @@ namespace booking_facilities.Repositories
             return sport;
         }
 
-        public bool sportIdExist(int id)
+        public bool SportIdExists(int id)
         {
             return context.Sport.Any(e => e.SportId == id);
         }

@@ -125,7 +125,7 @@ namespace booking_facilities.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!sportRepository.sportIdExist(sport.SportId))
+                    if (!sportRepository.SportIdExists(sport.SportId))
                     {
                         return NotFound();
                     }

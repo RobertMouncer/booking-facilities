@@ -8,23 +8,24 @@ using Microsoft.EntityFrameworkCore;
 using booking_facilities.Models;
 using Microsoft.AspNetCore.Authorization;
 using X.PagedList;
+using booking_facilities.Repositories;
 
 namespace booking_facilities.Controllers
 {
     [Authorize(AuthenticationSchemes = "oidc", Policy ="administrator")]
     public class VenuesController : Controller
     {
-        private readonly booking_facilitiesContext _context;
+        private readonly IVenueRepository venueRepository;
 
-        public VenuesController(booking_facilitiesContext context)
+        public VenuesController(IVenueRepository venueRepository)
         {
-            _context = context;
+            this.venueRepository = venueRepository;
         }
 
         // GET: Venues
         public async Task<IActionResult> Index(int? page)
         {
-            IQueryable<Venue> venues =  _context.Venue;
+            IQueryable<Venue> venues =  venueRepository.GetAllAsyncOrderByDate();
 
             venues = venues.OrderBy(v => v.VenueName);
 
@@ -47,8 +48,7 @@ namespace booking_facilities.Controllers
                 return NotFound();
             }
 
-            var venue = await _context.Venue
-                .FirstOrDefaultAsync(m => m.VenueId == id);
+            var venue = await venueRepository.GetByIdAsync(id.Value);
             if (venue == null)
             {
                 return NotFound();
@@ -70,14 +70,13 @@ namespace booking_facilities.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("VenueId,VenueName")] Venue venue)
         {
-            if (_context.Venue.Any(v => v.VenueName == venue.VenueName))
+            if (venueRepository.DoesVenueExist(venue.VenueName))
             {
                 ModelState.AddModelError("VenueName", "Venue already exists. Please enter another venue.");
             }
-            else if(ModelState.IsValid)
+            else if (ModelState.IsValid)
             {
-                _context.Add(venue);
-                await _context.SaveChangesAsync();
+                await venueRepository.AddAsync(venue);
                 return RedirectToAction(nameof(Index));
             }
             return View(venue);
@@ -91,7 +90,7 @@ namespace booking_facilities.Controllers
                 return NotFound();
             }
 
-            var venue = await _context.Venue.FindAsync(id);
+            var venue = await venueRepository.GetByIdAsync(id.Value);
             if (venue == null)
             {
                 return NotFound();
@@ -111,7 +110,7 @@ namespace booking_facilities.Controllers
                 return NotFound();
             }
 
-            if (_context.Venue.Any(v => v.VenueName == venue.VenueName))
+            if (venueRepository.DoesVenueExist(venue.VenueName))
             {
                 ModelState.AddModelError("VenueName", "Venue already exists. Please enter another venue.");
             }
@@ -119,8 +118,7 @@ namespace booking_facilities.Controllers
             {
                 try
                 {
-                    _context.Update(venue);
-                    await _context.SaveChangesAsync();
+                    await venueRepository.UpdateAsync(venue);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -146,8 +144,7 @@ namespace booking_facilities.Controllers
                 return NotFound();
             }
 
-            var venue = await _context.Venue
-                .FirstOrDefaultAsync(m => m.VenueId == id);
+            var venue = await venueRepository.GetByIdAsync(id.Value);
             if (venue == null)
             {
                 return NotFound();
@@ -161,15 +158,14 @@ namespace booking_facilities.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var venue = await _context.Venue.FindAsync(id);
-            _context.Venue.Remove(venue);
-            await _context.SaveChangesAsync();
+            var venue = await venueRepository.GetByIdAsync(id);
+            await venueRepository.DeleteAsync(venue);
             return RedirectToAction(nameof(Index));
         }
 
         private bool VenueExists(int id)
         {
-            return _context.Venue.Any(e => e.VenueId == id);
+            return venueRepository.VenueExists(id);
         }
     }
 }
