@@ -94,6 +94,7 @@ namespace booking_facilities
             services.AddDbContext<booking_facilitiesContext>(options =>
                     options.UseMySql(config.GetConnectionString("booking_facilitiesContext")));
             services.AddScoped<ISportRepository, SportRepository>();
+            services.AddScoped<IVenueRepository, VenueRepository>();
             if (!environment.IsDevelopment())
             {
                 services.Configure<ForwardedHeadersOptions>(options =>
