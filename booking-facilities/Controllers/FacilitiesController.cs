@@ -22,9 +22,29 @@ namespace booking_facilities.Controllers
         }
 
         // GET: Facilities
-        public async Task<IActionResult> Index(int? page)
+        public async Task<IActionResult> Index(int? page, string sortOrder)
         {
-            var facilities = _context.Facility.Include(f => f.Sport).Include(f => f.Venue);
+            ViewData["VenueSortParm"] = sortOrder == "Venue" ? "venue_desc" : "Venue";
+            ViewData["SportSortParm"] = sortOrder == "Sport" ? "sport_desc" : "Sport";
+
+            IQueryable<Facility> facilities = _context.Facility.Include(f => f.Sport).Include(f => f.Venue);
+
+            switch (sortOrder)
+            {
+                case "venue_desc":
+                    facilities = facilities.OrderByDescending(f => f.Venue.VenueName);
+                    break;
+                case "Sport":
+                    facilities = facilities.OrderBy(f => f.Sport.SportName);
+                    break;
+                case "sport_desc":
+                    facilities = facilities.OrderByDescending(f => f.Sport.SportName);
+                    break;
+                default:
+                    facilities = facilities.OrderBy(f => f.Venue.VenueName);
+                    break;
+            }
+
             var facilitiesList = await facilities.ToListAsync();
 
             var pageNumber = page ?? 1; // if no page was specified in the querystring, default to the first page (1)

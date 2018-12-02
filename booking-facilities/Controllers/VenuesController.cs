@@ -24,7 +24,10 @@ namespace booking_facilities.Controllers
         // GET: Venues
         public async Task<IActionResult> Index(int? page)
         {
-            var venues = await _context.Venue.ToListAsync();
+            IQueryable<Venue> venues =  _context.Venue;
+
+            venues = venues.OrderBy(v => v.VenueName);
+
             var venueList = await venues.ToListAsync();
 
             var pageNumber = page ?? 1; // if no page was specified in the querystring, default to the first page (1)

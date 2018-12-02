@@ -55,13 +55,15 @@
     </dl>
 </div>
 <div>
-    @if(User.Claims.FirstOrDefault(c => c.Type == "user_type").Value.Equals("administrator") && Model.IsBlock)
+    @if (User.Claims.FirstOrDefault(c => c.Type == "user_type").Value.Equals("administrator") && Model.IsBlock)
     {
         <a asp-action="EditBlockFacility" asp-route-id="@Model.BookingId">Edit</a>
+        @:|
     }
     else if (!Model.IsBlock)
     {
         <a asp-action="Edit" asp-route-id="@Model.BookingId">Edit</a>
-    } |
+        @:|
+    }
     <a asp-action="Index">Back to List</a>
 </div>

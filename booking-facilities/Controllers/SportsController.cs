@@ -24,7 +24,10 @@ namespace booking_facilities.Controllers
         // GET: Sports
         public async Task<IActionResult> Index(int? page)
         {
-            var sports = await _context.Sport.ToListAsync();
+            IQueryable<Sport> sports = _context.Sport;
+
+            sports = sports.OrderBy(s => s.SportName);
+
             var sportsList = await sports.ToListAsync();
 
             var pageNumber = page ?? 1; // if no page was specified in the querystring, default to the first page (1)
