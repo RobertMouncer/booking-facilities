@@ -137,7 +137,7 @@ namespace booking_facilitiesTest.Repositories
                 context.Database.EnsureCreated();
                 var repository = new SportRepository(context);
                 await repository.AddAsync(sport);
-                Assert.True(repository.SportIdExists(sport.sportId));
+                Assert.True(repository.SportIdExists(sport.SportId));
             }
 
         }
@@ -151,12 +151,12 @@ namespace booking_facilitiesTest.Repositories
                 context.Database.EnsureCreated();
                 var repository = new SportRepository(context);
                 await repository.AddAsync(sport);
-                Assert.True(repository.SportIdExists(sport.sportId+1));
+                Assert.False(repository.SportIdExists(-1));
             }
 
         }
         [Fact]
-        public async void GetAllSync_ReturnsAllFromContext()
+        public async void GetAllAsync_ReturnsAllFromContext()
         {
             var expectedSports = SportGenerator.CreateList();
             using (var context = new booking_facilitiesContext(contextOptions))
