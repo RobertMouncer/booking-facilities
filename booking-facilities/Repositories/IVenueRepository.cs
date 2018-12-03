@@ -8,12 +8,12 @@ namespace booking_facilities.Repositories
 {
     public interface IVenueRepository
     {
-        IQueryable<Venue> GetAllAsyncOrderByDate();
         Task<Venue> GetByIdAsync(int id);
         Task<Venue> AddAsync(Venue venue);
         Task<Venue> UpdateAsync(Venue venue);
         Task<Venue> DeleteAsync(Venue venue);
         bool DoesVenueExist(string name);
         bool VenueExists(int id);
+        IQueryable<Venue> GetAllAsync();
     }
 }

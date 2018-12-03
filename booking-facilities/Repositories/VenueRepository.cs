@@ -39,9 +39,9 @@ namespace booking_facilities.Repositories
             return false;
         }
 
-        public IQueryable<Venue> GetAllAsyncOrderByDate()
+        public IQueryable<Venue> GetAllAsync()
         {
-            IQueryable<Venue> venues = context.Venue.OrderBy(v => v.VenueName);
+            IQueryable<Venue> venues = context.Venue;
             return venues;
         }
 

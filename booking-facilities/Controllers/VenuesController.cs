@@ -25,7 +25,7 @@ namespace booking_facilities.Controllers
         // GET: Venues
         public async Task<IActionResult> Index(int? page)
         {
-            IQueryable<Venue> venues =  venueRepository.GetAllAsyncOrderByDate();
+            IQueryable<Venue> venues =  venueRepository.GetAllAsync().OrderBy(v => v.VenueName);
 
             venues = venues.OrderBy(v => v.VenueName);
 

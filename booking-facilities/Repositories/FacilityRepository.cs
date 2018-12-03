@@ -3,44 +3,54 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using booking_facilities.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace booking_facilities.Repositories
 {
     public class FacilityRepository : IFacilityRepository
     {
-        public async Task<Venue> AddAsync(Venue venue)
+        private readonly booking_facilitiesContext context;
+
+        public FacilityRepository(booking_facilitiesContext context)
         {
-            throw new NotImplementedException();
+            this.context = context;
         }
 
-        public async Task<Venue> DeleteAsync(Venue venue)
+        public async Task<Facility> AddAsync(Facility facility)
         {
-            throw new NotImplementedException();
+            context.Facility.Add(facility);
+            await context.SaveChangesAsync();
+            return facility;
         }
 
-        public bool DoesFacilityExistInVenue(string name)
+        public async Task<Facility> DeleteAsync(Facility facility)
         {
-            throw new NotImplementedException();
+            context.Facility.Remove(facility);
+            await context.SaveChangesAsync();
+            return facility;
         }
 
-        public async Task<Venue> GetByIdAsync(int id)
+        public async Task<Facility> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            return await context.Facility.FindAsync(id);
         }
 
-        public IQueryable<Facility> GetFacilityByVenueAsync(int id)
+        public async Task<Facility> UpdateAsync(Facility facility)
         {
-            throw new NotImplementedException();
+            context.Entry(facility).State = EntityState.Modified;
+            await context.SaveChangesAsync();
+            return facility;
         }
 
-        public async Task<Venue> UpdateAsync(Venue venue)
+        public bool FacilityExists(int id)
         {
-            throw new NotImplementedException();
+            return context.Facility.Any(f => f.FacilityId == id);
         }
 
-        public bool VenueExists(int id)
+        public IQueryable<Facility> GetAllAsync()
         {
-            throw new NotImplementedException();
+            IQueryable<Facility> facility = context.Facility;
+            return facility;
         }
     }
 }

@@ -96,6 +96,7 @@ namespace booking_facilities
 
             services.AddScoped<ISportRepository, SportRepository>();
             services.AddScoped<IVenueRepository, VenueRepository>();
+            services.AddScoped<IFacilityRepository, FacilityRepository>();
 
             if (!environment.IsDevelopment())
             {
