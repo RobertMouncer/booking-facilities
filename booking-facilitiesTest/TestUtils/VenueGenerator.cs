@@ -11,7 +11,6 @@ namespace booking_facilitiesTest.TestUtils
         {
             return new Venue
             {
-                VenueId = index,
                 VenueName = "Old Sports Hall" + index
             };
         }

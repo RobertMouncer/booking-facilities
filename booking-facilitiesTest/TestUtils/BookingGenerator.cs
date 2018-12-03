@@ -11,7 +11,6 @@ namespace booking_facilitiesTest.TestUtils
         {
             return new Booking
             {
-                BookingId = index,
                 FacilityId = FacilityGenerator.Create().FacilityId,
                 BookingDateTime = DateTime.Now.AddHours(index),
                 EndBookingDateTime = DateTime.Now.AddHours(index+1),

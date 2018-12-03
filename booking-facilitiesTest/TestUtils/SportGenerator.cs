@@ -11,7 +11,6 @@ namespace booking_facilitiesTest.TestUtils
         {
             return new Sport
             {
-                SportId = index,
                 SportName = "Cricket" + index
             };
         }
