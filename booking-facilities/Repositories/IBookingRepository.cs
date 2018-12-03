@@ -8,7 +8,7 @@ namespace booking_facilities.Repositories
 {
     public interface IBookingRepository
     {
-        IQueryable<Booking> GetAll();
+        IQueryable<Booking> GetAllAsync();
         Task<Booking> DeleteAsync(Booking booking);
         Task<Booking> AddAsync(Booking booking);
         Task<Booking> GetByIdAndInclude(int id);

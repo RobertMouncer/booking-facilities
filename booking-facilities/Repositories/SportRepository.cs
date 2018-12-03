@@ -6,10 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace booking_facilities.Repositories
-
 {
-
-
     public class SportRepository : ISportRepository
     {
         private readonly booking_facilitiesContext context;
@@ -17,14 +14,6 @@ namespace booking_facilities.Repositories
         public SportRepository(booking_facilitiesContext context)
         {
             this.context = context;
-        }
-
-        public IQueryable<Sport> GetAllAsyncOrderByDate()
-        {
-            IQueryable<Sport> sports = context.Sport.OrderBy(s => s.SportName);
-
-            return sports;
-
         }
 
         public async Task<Sport> GetByIdAsync(int id)

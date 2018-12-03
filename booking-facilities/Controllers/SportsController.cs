@@ -25,16 +25,13 @@ namespace booking_facilities.Controllers
         // GET: Sports
         public async Task<IActionResult> Index(int? page)
         {
-            //IQueryable<Sport> sports = ;
-
-
-            var sportsQ = sportRepository.GetAllAsyncOrderByDate();
+            var sportsQ = sportRepository.GetAllAsync().OrderBy(s => s.SportName);
             var sportsList = await sportsQ.ToListAsync();
 
-            var pageNumber = page ?? 1; // if no page was specified in the querystring, default to the first page (1)
+            var pageNumber = page ?? 1; 
             var sportsPerPage = 10;
 
-            var onePageOfSports = sportsList.ToPagedList(pageNumber, sportsPerPage); // will only contain 25 products max because of the pageSize
+            var onePageOfSports = sportsList.ToPagedList(pageNumber, sportsPerPage); 
 
             ViewBag.onePageOfSports = onePageOfSports;
             return View();

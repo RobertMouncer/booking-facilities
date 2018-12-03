@@ -154,10 +154,12 @@ namespace booking_facilities.Controllers
             {
                 try
                 {
-                    //var bookings = _context.Booking.Where(b => b.FacilityId.Equals(facility.FacilityId) && !b.IsBlock);
-                    var bookings = bookingRepository.GetAllAsync();
                     var bookingsForFacility = bookingRepository.GetAllAsync().Where(b => b.FacilityId.Equals(facility.FacilityId) && !b.IsBlock);
-                    bookings.RemoveRange(bookingsForFacility);
+                    foreach(Booking b in bookingsForFacility)
+                    {
+                        await bookingRepository.DeleteAsync(b);
+                    }
+                    
                     await facilityRepository.UpdateAsync(facility);
                 }
                 catch (DbUpdateConcurrencyException)
