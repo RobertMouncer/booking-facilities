@@ -9,8 +9,6 @@ namespace booking_facilities.Models
 {
     public class Sport
     {
-        public int sportId;
-
         [Required]
         public virtual int SportId { get; set; }
         [Required]
