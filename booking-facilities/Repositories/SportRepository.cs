@@ -18,8 +18,7 @@ namespace booking_facilities.Repositories
 
         public async Task<Sport> GetByIdAsync(int id)
         {
-            Sport sport = await context.Sport.FirstOrDefaultAsync(s => s.SportId == id);
-            return sport;
+            return await context.Sport.FirstOrDefaultAsync(s => s.SportId == id);
         }
 
         public bool DoesSportExist(string sportname)
@@ -59,5 +58,6 @@ namespace booking_facilities.Repositories
         {
             return  context.Sport;
         }
+
     }
 }
