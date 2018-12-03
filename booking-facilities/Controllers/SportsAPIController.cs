@@ -31,9 +31,10 @@ namespace booking_facilities.Controllers
         public IActionResult GetSport([FromRoute] int id)
         {
 
-            var facilities = facilityRepository.GetFacilityByVenueAsync(id);
+            var facilities = facilityRepository.GetAllAsync().Where(f => f.VenueId == id);
             var sports = sportRepository.GetAllAsync();
             var results = new List<Sport>();
+
             foreach (Facility f in facilities)
             {
                 results.Add(sports.Where(s => s.SportId.Equals(f.SportId)).Single());

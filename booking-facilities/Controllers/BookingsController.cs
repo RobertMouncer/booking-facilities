@@ -25,8 +25,8 @@ namespace booking_facilities.Controllers
 
         public BookingsController(IFacilityRepository facilityRepository, IVenueRepository venueRepository, ISportRepository sportRepository, IBookingRepository bookingRepository, IApiClient client)
         {
-            this.facilityRepository = facilityRepository;
             this.venueRepository = venueRepository;
+            this.facilityRepository = facilityRepository;
             this.sportRepository = sportRepository;
             this.bookingRepository = bookingRepository;
             apiClient = client;
@@ -38,9 +38,10 @@ namespace booking_facilities.Controllers
             ViewData["DateSortParm"] = sortOrder == "Date" ? "date_desc" : "Date";
             ViewData["VenueSortParm"] = sortOrder == "Venue" ? "venue_desc" : "Venue";
             ViewData["UserSortParm"] = sortOrder == "User" ? "user_desc" : "User";
-            IQueryable<Booking> booking_facilitiesContext = bookingRepository.GetAll().Include(b => b.Facility)
+            IQueryable<Booking> booking_facilitiesContext = bookingRepository.GetAllAsync().Include(b => b.Facility)
                                                                                       .Include(b => b.Facility.Venue)
-                                                                                      .Include(b => b.Facility.Sport);
+                                                                                      .Include(b => b.Facility.Sport)
+                                                                                      .Where(b => (DateTime.Compare(b.EndBookingDateTime, DateTime.Now) >= 0));
 
             if (!User.Claims.FirstOrDefault(c => c.Type == "user_type").Value.Equals("administrator"))
             {
@@ -126,7 +127,7 @@ namespace booking_facilities.Controllers
         [Authorize(Policy = "Administrator")]
         public IActionResult CreateBlockFacility()
         {
-            ViewData["VenueId"] = new SelectList(venueRepository.GetAllSync(), "VenueId", "VenueName");
+            ViewData["VenueId"] = new SelectList(venueRepository.GetAllAsync(), "VenueId", "VenueName");
             ViewData["FacilityId"] = new SelectList(facilityRepository.GetAllAsync(), "FacilityId", "FacilityName");
             ViewData["SportId"] = new SelectList(sportRepository.GetAllAsync(), "SportId", "SportName");
             return View();
@@ -140,7 +141,7 @@ namespace booking_facilities.Controllers
             booking.IsBlock = true;
 
             booking.UserId = User.Claims.FirstOrDefault(c => c.Type == "sub").Value;
-            var bookings = bookingRepository.GetAll().Where(b => b.FacilityId.Equals(booking.FacilityId));
+            var bookings = bookingRepository.GetAllAsync().Where(b => b.FacilityId.Equals(booking.FacilityId));
 
             if (DateTime.Compare(booking.BookingDateTime, DateTime.Now) <= 0)
             {
@@ -167,7 +168,7 @@ namespace booking_facilities.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["VenueId"] = new SelectList(venueRepository.GetAllSync(), "VenueId", "VenueName");
+            ViewData["VenueId"] = new SelectList(venueRepository.GetAllAsync(), "VenueId", "VenueName");
             ViewData["FacilityId"] = new SelectList(facilityRepository.GetAllAsync(), "FacilityId", "FacilityName");
             ViewData["SportId"] = new SelectList(sportRepository.GetAllAsync(), "SportId", "SportName"); 
             return View(booking);
@@ -181,13 +182,13 @@ namespace booking_facilities.Controllers
                 return NotFound();
             }
 
-            var booking = bookingRepository.GetByIdAsync(id.Value);
+            var booking = await bookingRepository.GetByIdAsync(id.Value);
 
             if (booking == null)
             {
                 return NotFound();
             }
-            ViewData["VenueId"] = new SelectList(venueRepository.GetAllSync(), "VenueId", "VenueName");
+            ViewData["VenueId"] = new SelectList(venueRepository.GetAllAsync(), "VenueId", "VenueName");
             ViewData["FacilityId"] = new SelectList(facilityRepository.GetAllAsync(), "FacilityId", "FacilityName");
             ViewData["SportId"] = new SelectList(sportRepository.GetAllAsync(), "SportId", "SportName");
             return View(booking);
@@ -207,7 +208,7 @@ namespace booking_facilities.Controllers
 
             //must compare bookingId in where because you can't inspect a booking currently being edited WTF!!!!
 
-            var bookings = bookingRepository.GetAll().Where(b => b.FacilityId.Equals(booking.FacilityId)
+            var bookings = bookingRepository.GetAllAsync().Where(b => b.FacilityId.Equals(booking.FacilityId)
             && !b.BookingId.Equals(booking.BookingId));
 
             if (DateTime.Compare(booking.BookingDateTime, DateTime.Now) <= 0)
@@ -246,7 +247,7 @@ namespace booking_facilities.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["VenueId"] = new SelectList(venueRepository.GetAllSync(), "VenueId", "VenueName");
+            ViewData["VenueId"] = new SelectList(venueRepository.GetAllAsync(), "VenueId", "VenueName");
             ViewData["FacilityId"] = new SelectList(facilityRepository.GetAllAsync(), "FacilityId", "FacilityName");
             ViewData["SportId"] = new SelectList(sportRepository.GetAllAsync(), "SportId", "SportName");
             return View(booking);
@@ -255,7 +256,7 @@ namespace booking_facilities.Controllers
             // GET: Bookings/Create
         public IActionResult Create()
         {
-            ViewData["VenueId"] = new SelectList(venueRepository.GetAllSync(), "VenueId", "VenueName");
+            ViewData["VenueId"] = new SelectList(venueRepository.GetAllAsync(), "VenueId", "VenueName");
             ViewData["SportId"] = new SelectList(sportRepository.GetAllAsync(), "SportId", "SportName");
             return View();
         }
@@ -297,7 +298,7 @@ namespace booking_facilities.Controllers
                 await bookingRepository.AddAsync(booking);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["VenueId"] = new SelectList(venueRepository.GetAllSync(), "VenueId", "VenueName");
+            ViewData["VenueId"] = new SelectList(venueRepository.GetAllAsync(), "VenueId", "VenueName");
             ViewData["SportId"] = new SelectList(sportRepository.GetAllAsync(), "SportId", "SportName");
             return View(booking);
         }
@@ -315,7 +316,7 @@ namespace booking_facilities.Controllers
             {
                 return NotFound();
             }
-            ViewData["VenueId"] = new SelectList(venueRepository.GetAllSync(), "VenueId", "VenueName");
+            ViewData["VenueId"] = new SelectList(venueRepository.GetAllAsync(), "VenueId", "VenueName");
             ViewData["SportId"] = new SelectList(sportRepository.GetAllAsync(), "SportId", "SportName");
             return View(booking);
         }
@@ -331,7 +332,7 @@ namespace booking_facilities.Controllers
             booking.UserId = User.Claims.FirstOrDefault(c => c.Type == "sub").Value;
 
             var bookings = bookingRepository.GetBookingsInLocationAtDateTime(booking, VenueId, SportId);
-            var facilities = facilityRepository.getAllAsync();
+            var facilities = facilityRepository.GetAllAsync();
 
 
             var faciltiesFiltered = facilities.Where(f => f.VenueId.Equals(VenueId) && f.SportId.Equals(SportId));
@@ -371,7 +372,7 @@ namespace booking_facilities.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["VenueId"] = new SelectList(venueRepository.GetAllSync(), "VenueId", "VenueName");
+            ViewData["VenueId"] = new SelectList(venueRepository.GetAllAsync(), "VenueId", "VenueName");
             ViewData["SportId"] = new SelectList(sportRepository.GetAllAsync(), "SportId", "SportName");
             return View(booking);
         }
@@ -414,30 +415,30 @@ namespace booking_facilities.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var booking = await bookingRepository.GetByIdAsync(id);
-            bookingRepository.DeleteAsync(id);
+            await bookingRepository.DeleteAsync(booking);
             return RedirectToAction(nameof(Index));
         }
 
         private bool BookingExists(int id)
         {
-            return bookingRepository.GetAll().Any(e => e.BookingId == id);
+            return bookingRepository.GetAllAsync().Any(e => e.BookingId == id);
         }
 
         private int getFacility(int VenueId, int SportId, Booking booking)
         {
-            var facilities = facilityRepository.GetAll.Where(f => f.VenueId.Equals(VenueId) && f.SportId.Equals(SportId));
+            var facilities = facilityRepository.GetAllAsync().Where(f => f.VenueId.Equals(VenueId) && f.SportId.Equals(SportId));
 
 
             //var bookings = _context.Booking.Where(b => b.BookingDateTime.Equals(booking.BookingDateTime)
             //&& b.Facility.VenueId.Equals(VenueId)
             //&& b.Facility.SportId.Equals(SportId)
             //&& !b.IsBlock);
-            var bookings = bookingRepository.GetAll().Where(b => b.BookingDateTime.Equals(booking.BookingDateTime)
+            var bookings = bookingRepository.GetAllAsync().Where(b => b.BookingDateTime.Equals(booking.BookingDateTime)
                                                          && b.Facility.VenueId.Equals(VenueId)
                                                          && b.Facility.SportId.Equals(SportId)
                                                          && !b.IsBlock);
 
-            var blockings = bookingRepository.GetAll().Where(b => b.Facility.VenueId.Equals(VenueId)
+            var blockings = bookingRepository.GetAllAsync().Where(b => b.Facility.VenueId.Equals(VenueId)
                                                          && b.Facility.SportId.Equals(SportId)
                                                          && b.IsBlock
                                                          && DateTime.Compare(b.BookingDateTime, booking.BookingDateTime) <= 0

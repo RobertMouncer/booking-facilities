@@ -14,7 +14,7 @@ namespace booking_facilities.Repositories
         {
             this.context = context;
         }
-        public IQueryable<Booking> GetAll()
+        public IQueryable<Booking> GetAllAsync()
         {
             return context.Booking;
         }

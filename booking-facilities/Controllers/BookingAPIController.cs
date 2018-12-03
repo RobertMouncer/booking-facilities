@@ -17,15 +17,11 @@ namespace booking_facilities.Controllers
     public class BookingAPIController : ControllerBase
     {
         private readonly IFacilityRepository facilityRepository;
-        private readonly IVenueRepository venueRepository;
-        private readonly ISportRepository sportRepository;
         private readonly IBookingRepository bookingRepository;
 
-        public BookingAPIController(IFacilityRepository facilityRepository, IVenueRepository venueRepository, ISportRepository sportRepository, IBookingRepository bookingRepository)
+        public BookingAPIController(IFacilityRepository facilityRepository, IBookingRepository bookingRepository)
         {
             this.facilityRepository = facilityRepository;
-            this.venueRepository = venueRepository;
-            this.sportRepository = sportRepository;
             this.bookingRepository = bookingRepository;
         }
 
@@ -33,7 +29,7 @@ namespace booking_facilities.Controllers
         [HttpGet]
         public IEnumerable<Booking> GetBooking()
         {
-            return bookingRepository.GetAll();
+            return bookingRepository.GetAllAsync();
         }
 
         // GET: api/booking/5
@@ -59,20 +55,20 @@ namespace booking_facilities.Controllers
         [HttpGet("{date}/{venueId}/{sportId}")]
         public IActionResult GetTimes([FromRoute] DateTime date, [FromRoute] int venueId, [FromRoute] int sportId)
         {
-            var bookings = bookingRepository.GetAll().Where(b => b.Facility.VenueId.Equals(venueId) 
+            var bookings = bookingRepository.GetAllAsync().Where(b => b.Facility.VenueId.Equals(venueId) 
                                                     && b.Facility.SportId.Equals(sportId) 
                                                     && !b.IsBlock
                                                     && (DateTime.Compare(b.BookingDateTime.Date, date.Date)) == 0)
                                                     .ToList();
 
-            var blockings = bookingRepository.GetAll().Where(b => b.Facility.VenueId.Equals(venueId) 
+            var blockings = bookingRepository.GetAllAsync().Where(b => b.Facility.VenueId.Equals(venueId) 
                                                     && b.Facility.SportId.Equals(sportId) 
                                                     && b.IsBlock
                                                     && DateTime.Compare(b.BookingDateTime.Date,date.Date) <= 0
                                                     && DateTime.Compare(date.Date,b.EndBookingDateTime.Date) <= 0)
                                                     .ToList();
 
-            var facilities = facilityRepository.GetAll().Where(f => f.VenueId.Equals(venueId) && f.SportId.Equals(sportId));
+            var facilities = facilityRepository.GetAllAsync().Where(f => f.VenueId.Equals(venueId) && f.SportId.Equals(sportId));
 
             var timeList = new List<DateTime>();
 
@@ -214,20 +210,20 @@ namespace booking_facilities.Controllers
 
         private bool BookingExists(int id)
         {
-            return bookingRepository.GetAll().Any(e => e.BookingId == id);
+            return bookingRepository.GetAllAsync().Any(e => e.BookingId == id);
         }
 
 
         private int getFacility(int VenueId, int SportId, Booking booking)
         {
-            var facilities = facilityRepository.getAll().Where(f => f.VenueId.Equals(VenueId) && f.SportId.Equals(SportId));
+            var facilities = facilityRepository.GetAllAsync().Where(f => f.VenueId.Equals(VenueId) && f.SportId.Equals(SportId));
 
-            var bookings = bookingRepository.GetAll().Where(b => b.BookingDateTime.Equals(booking.BookingDateTime)
+            var bookings = bookingRepository.GetAllAsync().Where(b => b.BookingDateTime.Equals(booking.BookingDateTime)
                                                          && b.Facility.VenueId.Equals(VenueId)
                                                          && b.Facility.SportId.Equals(SportId)
                                                          && !b.IsBlock);
 
-            var blockings = bookingRepository.GetAll().Where(b => b.Facility.VenueId.Equals(VenueId)
+            var blockings = bookingRepository.GetAllAsync().Where(b => b.Facility.VenueId.Equals(VenueId)
                                                          && b.Facility.SportId.Equals(SportId)
                                                          && b.IsBlock
                                                          && DateTime.Compare(b.BookingDateTime, booking.BookingDateTime) <= 0

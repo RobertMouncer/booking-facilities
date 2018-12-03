@@ -8,7 +8,6 @@ namespace booking_facilities.Repositories
 {
     public interface ISportRepository
     {
-        IQueryable<Sport> GetAllAsyncOrderByDate();
         Task<Sport> GetByIdAsync(int id);
         bool DoesSportExist(string sportname);
         Task<Sport> AddAsync(Sport sport);

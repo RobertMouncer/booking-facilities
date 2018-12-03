@@ -47,10 +47,16 @@
             @(Model.IsBlock ? "Block" : "Booking")
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.UserId)
+            @if (User.Claims.FirstOrDefault(c => c.Type == "user_type").Value.Equals("administrator"))
+            {
+                @Html.DisplayNameFor(model => model.UserId)
+            }
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.UserId)
+            @if (User.Claims.FirstOrDefault(c => c.Type == "user_type").Value.Equals("administrator"))
+            {
+                @Html.DisplayFor(model => model.UserId)
+            }
         </dd>
     </dl>
 </div>
