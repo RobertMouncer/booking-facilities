@@ -33,14 +33,6 @@ namespace booking_facilities.Repositories
             return booking;
         }
 
-        public async Task<Booking> GetByIdAndInclude(int id)
-        {
-            return await context.Booking
-               .Include(b => b.Facility)
-               .Include(b => b.Facility.Venue)
-               .Include(b => b.Facility.Sport)
-               .FirstOrDefaultAsync(m => m.BookingId == id);
-        }
         public async Task<Booking> GetByIdAsync(int id)
         {
             return await context.Booking.FindAsync(id);
@@ -52,9 +44,9 @@ namespace booking_facilities.Repositories
             await context.SaveChangesAsync();
             return booking;
         }
-        public IQueryable<Booking> GetBookingsInLocationAtDateTime(Booking booking, int VenueId, int SportId)
+        public IQueryable<Booking> GetBookingsInLocationAtDateTime(DateTime datetime, int VenueId, int SportId)
         {
-            return context.Booking.Where(b => b.BookingDateTime.Equals(booking.BookingDateTime) 
+            return context.Booking.Where(b => b.BookingDateTime.Equals(datetime) 
                                             && b.Facility.VenueId.Equals(VenueId) 
                                             && b.Facility.SportId.Equals(SportId));
         }

@@ -151,7 +151,7 @@ namespace booking_facilitiesTest.Repositories
                 context.Database.EnsureCreated();
                 var repository = new SportRepository(context);
                 await repository.AddAsync(sport);
-                Assert.False(repository.SportIdExists(sport.SportId+1));
+                Assert.False(repository.SportIdExists(-1));
             }
 
         }

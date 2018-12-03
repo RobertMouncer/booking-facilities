@@ -9,9 +9,11 @@ namespace booking_facilitiesTest.TestUtils
     {
         public static Booking Create(int index = 0)
         {
+            var facility = FacilityGenerator.Create();
             return new Booking
             {
-                FacilityId = FacilityGenerator.Create().FacilityId,
+                Facility = facility,
+                FacilityId = facility.FacilityId,
                 BookingDateTime = DateTime.Now.AddHours(index),
                 EndBookingDateTime = DateTime.Now.AddHours(index+1),
                 UserId = "f94e903b-54ea-47c3-b709-ad6d95ec3556",
