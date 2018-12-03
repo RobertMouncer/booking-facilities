@@ -109,7 +109,11 @@ namespace booking_facilities.Controllers
                 return NotFound();
             }
 
-            var booking = await bookingRepository.GetByIdAndInclude(id.Value);
+            //var booking = await bookingRepository.GetByIdAndInclude(id.Value);
+            var booking = await bookingRepository.GetAllAsync().Include(b => b.Facility)
+               .Include(b => b.Facility.Venue)
+               .Include(b => b.Facility.Sport)
+               .FirstOrDefaultAsync(m => m.BookingId == id);
             if (booking == null)
             {
                 return NotFound();
@@ -274,7 +278,7 @@ namespace booking_facilities.Controllers
             booking.EndBookingDateTime = booking.BookingDateTime.AddHours(1);
             booking.UserId = User.Claims.FirstOrDefault(c => c.Type == "sub").Value;
 
-            var bookings = bookingRepository.GetBookingsInLocationAtDateTime(booking, VenueId, SportId);
+            var bookings = bookingRepository.GetBookingsInLocationAtDateTime(booking.BookingDateTime, VenueId, SportId);
             var facilities = facilityRepository.GetAllAsync();
             var faciltiesFiltered = facilities.Where(f => f.VenueId.Equals(VenueId) && f.SportId.Equals(SportId));
 
@@ -331,7 +335,7 @@ namespace booking_facilities.Controllers
             booking.EndBookingDateTime = booking.BookingDateTime.AddHours(1);
             booking.UserId = User.Claims.FirstOrDefault(c => c.Type == "sub").Value;
 
-            var bookings = bookingRepository.GetBookingsInLocationAtDateTime(booking, VenueId, SportId);
+            var bookings = bookingRepository.GetBookingsInLocationAtDateTime(booking.BookingDateTime, VenueId, SportId);
             var facilities = facilityRepository.GetAllAsync();
 
 
@@ -387,7 +391,10 @@ namespace booking_facilities.Controllers
             }
             
 
-            var booking = await bookingRepository.GetByIdAndInclude(id.Value);
+            var booking = await bookingRepository.GetAllAsync().Include(b => b.Facility)
+                                                               .Include(b => b.Facility.Venue)
+                                                               .Include(b => b.Facility.Sport)
+                                                               .FirstOrDefaultAsync(m => m.BookingId == id);
 
             if (User.Claims.FirstOrDefault(c => c.Type == "sub").Value != booking.UserId 
                 && !User.Claims.FirstOrDefault(c => c.Type == "user_type").Value.Equals("administrator"))
