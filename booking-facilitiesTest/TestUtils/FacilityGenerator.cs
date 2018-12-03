@@ -11,7 +11,6 @@ namespace booking_facilitiesTest.TestUtils
         {
             return new Facility
             {
-                FacilityId = index,
                 FacilityName = "Court" + index,
                 SportId = SportGenerator.Create().SportId,
                 VenueId = VenueGenerator.Create().VenueId

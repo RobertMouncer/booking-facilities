@@ -59,10 +59,5 @@ namespace booking_facilities.Repositories
         {
             return  context.Sport;
         }
-
-        public async Task<List<Facility>> GetSportsByVenueAsync(int id)
-        {
-            return await context.Facility.Where(f => f.VenueId == id).ToListAsync();
-        }
     }
 }
