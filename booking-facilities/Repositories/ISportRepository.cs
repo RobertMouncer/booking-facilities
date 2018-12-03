@@ -15,5 +15,6 @@ namespace booking_facilities.Repositories
         Task<Sport> UpdateAsync(Sport sport);
         Task<Sport> DeleteAsync(Sport sport);
         bool SportIdExists(int id);
+        IQueryable<Sport> GetAllAsync();
     }
 }

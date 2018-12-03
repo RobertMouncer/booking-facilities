@@ -28,6 +28,11 @@ namespace booking_facilities.Repositories
             throw new NotImplementedException();
         }
 
+        public IQueryable<Facility> GetFacilityByVenueAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<Venue> UpdateAsync(Venue venue)
         {
             throw new NotImplementedException();

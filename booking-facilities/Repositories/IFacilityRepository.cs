@@ -14,5 +14,6 @@ namespace booking_facilities.Repositories
         Task<Venue> DeleteAsync(Venue venue);
         bool DoesFacilityExistInVenue(string name);
         bool VenueExists(int id);
+        IQueryable<Facility> GetFacilityByVenueAsync(int id);
     }
 }
