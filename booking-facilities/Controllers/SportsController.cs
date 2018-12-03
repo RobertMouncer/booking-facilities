@@ -8,27 +8,28 @@ using Microsoft.EntityFrameworkCore;
 using booking_facilities.Models;
 using Microsoft.AspNetCore.Authorization;
 using X.PagedList;
+using booking_facilities.Repositories;
 
 namespace booking_facilities.Controllers
 {
     [Authorize(AuthenticationSchemes = "oidc", Policy = "Administrator")]
     public class SportsController : Controller
     {
-        private readonly booking_facilitiesContext _context;
+        private readonly ISportRepository sportRepository;
 
-        public SportsController(booking_facilitiesContext context)
+        public SportsController(ISportRepository sportRepository)
         {
-            _context = context;
+            this.sportRepository = sportRepository;
         }
 
         // GET: Sports
         public async Task<IActionResult> Index(int? page)
         {
-            IQueryable<Sport> sports = _context.Sport;
+            //IQueryable<Sport> sports = ;
 
-            sports = sports.OrderBy(s => s.SportName);
 
-            var sportsList = await sports.ToListAsync();
+            var sportsQ = sportRepository.GetAllAsyncOrderByDate();
+            var sportsList = await sportsQ.ToListAsync();
 
             var pageNumber = page ?? 1; // if no page was specified in the querystring, default to the first page (1)
             var sportsPerPage = 10;
@@ -47,8 +48,8 @@ namespace booking_facilities.Controllers
                 return NotFound();
             }
 
-            var sport = await _context.Sport
-                .FirstOrDefaultAsync(m => m.SportId == id);
+            var sport = await sportRepository.GetByIdAsync(id.Value);
+
             if (sport == null)
             {
                 return NotFound();
@@ -70,14 +71,14 @@ namespace booking_facilities.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("SportId,SportName")] Sport sport)
         {
-            if (_context.Sport.Any(s => s.SportName == sport.SportName))
+            if (sportRepository.DoesSportExist(sport.SportName))
             {
                 ModelState.AddModelError("SportName","Sport already exists. Please enter another sport.");
             }
-            else if (ModelState.IsValid)
+
+            if (ModelState.IsValid)
             {
-                _context.Add(sport);
-                await _context.SaveChangesAsync();
+                await sportRepository.AddAsync(sport);
                 return RedirectToAction(nameof(Index));
             }
             return View(sport);
@@ -91,7 +92,7 @@ namespace booking_facilities.Controllers
                 return NotFound();
             }
 
-            var sport = await _context.Sport.FindAsync(id);
+            var sport = await sportRepository.GetByIdAsync(id.Value);
             if (sport == null)
             {
                 return NotFound();
@@ -112,7 +113,7 @@ namespace booking_facilities.Controllers
             }
 
 
-            if (_context.Sport.Any(s => s.SportName == sport.SportName))
+            if (sportRepository.DoesSportExist(sport.SportName))
             {
                 ModelState.AddModelError("SportName", "Sport already exists. Please enter another sport.");
             }
@@ -120,12 +121,11 @@ namespace booking_facilities.Controllers
             {
                 try
                 {
-                    _context.Update(sport);
-                    await _context.SaveChangesAsync();
+                    await sportRepository.UpdateAsync(sport);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!SportExists(sport.SportId))
+                    if (!sportRepository.SportIdExists(sport.SportId))
                     {
                         return NotFound();
                     }
@@ -147,8 +147,8 @@ namespace booking_facilities.Controllers
                 return NotFound();
             }
 
-            var sport = await _context.Sport
-                .FirstOrDefaultAsync(m => m.SportId == id);
+            var sport = await sportRepository.GetByIdAsync(id.Value);
+
             if (sport == null)
             {
                 return NotFound();
@@ -162,17 +162,10 @@ namespace booking_facilities.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var sport = await _context.Sport.FindAsync(id);
-            _context.Sport.Remove(sport);
-            await _context.SaveChangesAsync();
+            var sport = await sportRepository.GetByIdAsync(id);
+            await sportRepository.DeleteAsync(sport);
             return RedirectToAction(nameof(Index));
         }
-
-        private bool SportExists(int id)
-        {
-            return _context.Sport.Any(e => e.SportId == id);
-        }
-
        
     }
 }

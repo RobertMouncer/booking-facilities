@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Authentication;
 using System.IdentityModel.Tokens.Jwt;
 using Serilog;
+using booking_facilities.Repositories;
 
 namespace booking_facilities
 {
@@ -92,6 +93,10 @@ namespace booking_facilities
 
             services.AddDbContext<booking_facilitiesContext>(options =>
                     options.UseMySql(config.GetConnectionString("booking_facilitiesContext")));
+
+            services.AddScoped<ISportRepository, SportRepository>();
+            services.AddScoped<IVenueRepository, VenueRepository>();
+            services.AddScoped<IFacilityRepository, FacilityRepository>();
 
             if (!environment.IsDevelopment())
             {

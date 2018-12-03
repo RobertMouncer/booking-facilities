@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using booking_facilities.Models;
 using Microsoft.AspNetCore.Authorization;
+using booking_facilities.Repositories;
 
 namespace booking_facilities.Controllers
 {
@@ -16,24 +17,24 @@ namespace booking_facilities.Controllers
     [ApiController]
     public class FacilityAPIController : ControllerBase
     {
-        private readonly booking_facilitiesContext _context;
+        private readonly IFacilityRepository facilityRepository;
 
-        public FacilityAPIController(booking_facilitiesContext context)
+        public FacilityAPIController(IFacilityRepository facilityRepository)
         {
-            _context = context;
+            this.facilityRepository = facilityRepository;
         }
 
         // GET: api/getFacilities
         [HttpGet]
         public IEnumerable<Facility> GetFacility()
         {
-            return _context.Facility;
+            return facilityRepository.GetAllAsync();
         }
 
         [HttpGet("{venueId}/{sportId}")]
         public IActionResult GetSport([FromRoute] int venueId, [FromRoute] int sportId)
         {
-            var facilities = _context.Facility.Where(f => f.VenueId.Equals(venueId) && f.SportId.Equals(sportId));
+            var facilities = facilityRepository.GetAllAsync().Where(f => f.VenueId.Equals(venueId) && f.SportId.Equals(sportId));
 
             return Ok(facilities.ToList());
         }
