@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
+using System.Linq;
 
 namespace booking_facilitiesTest.Repositories
 {
@@ -19,7 +20,6 @@ namespace booking_facilitiesTest.Repositories
             contextOptions = new DbContextOptionsBuilder<booking_facilitiesContext>()
                 .UseInMemoryDatabase($"rand_db_name_{random.Next()}").Options;
         }
-        // DONE
         [Fact]
         public async void AddAsync_AddsToConext()
         {
@@ -33,7 +33,6 @@ namespace booking_facilitiesTest.Repositories
                 Assert.Equal(venue, await context.Venue.SingleAsync());
             }
         }
-        // DONE
         [Fact]
         public async void DeleteAsync_RemovesFromContext()
         {
@@ -49,7 +48,6 @@ namespace booking_facilitiesTest.Repositories
                 Assert.Equal(0, await context.Venue.CountAsync());
             }
         }
-        // BROKEN
         [Fact]
         public async void GetByIdAsync_ReturnsCorrectItems()
         {
@@ -67,7 +65,6 @@ namespace booking_facilitiesTest.Repositories
                 Assert.Equal(expected, venue);
             }
         }
-        // DONE
         [Fact]
         public async void UpdateAsync_UpdatesInContext()
         {
@@ -85,7 +82,6 @@ namespace booking_facilitiesTest.Repositories
                 Assert.Equal(newVenue, await context.Venue.SingleAsync());
             }
         }
-        // DONE
         [Fact]
         public void DoesVenueExist_ChecksByName()
         {
@@ -98,9 +94,9 @@ namespace booking_facilitiesTest.Repositories
                 context.SaveChanges();
                 var repository = new VenueRepository(context);
                 Assert.True(repository.DoesVenueExist("King's College"));
+                Assert.False(repository.DoesVenueExist("Queens's College"));
             }
         }
-        // DONE
         [Fact]
         public void VenueExists_ChecksById()
         {
@@ -112,7 +108,27 @@ namespace booking_facilitiesTest.Repositories
                 context.SaveChanges();
                 var repository = new VenueRepository(context);
                 Assert.True(repository.VenueExists(venue.VenueId));
+                Assert.False(repository.VenueExists(-1));
                 Console.WriteLine(venue.VenueId);
+            }
+        }
+        [Fact]
+        public async void GetAllAsync_ReturnsAllFromContext()
+        {
+            var expectedVenues = VenueGenerator.CreateList();
+            using (var context = new booking_facilitiesContext(contextOptions))
+            {
+                context.Database.EnsureCreated();
+                context.Venue.AddRange(expectedVenues);
+                context.SaveChanges();
+
+                Assert.Equal(expectedVenues.Count, await context.Venue.CountAsync());
+
+                var repository = new VenueRepository(context);
+                var resources = repository.GetAllAsync();
+
+                Assert.IsAssignableFrom<IQueryable<Venue>>(resources);
+                Assert.Equal(expectedVenues, resources);
             }
         }
     }
