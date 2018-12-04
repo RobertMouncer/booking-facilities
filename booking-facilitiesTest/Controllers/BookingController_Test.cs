@@ -47,6 +47,7 @@ namespace booking_facilitiesTest.Controllers
         [Fact]
         public void Index_ContainsCorrectModel()
         {
+            //implement
             var expectedResources = BookingGenerator.CreateList();
             Assert.Equal(1, 2);
         }

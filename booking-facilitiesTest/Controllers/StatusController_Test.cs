@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using Xunit;
 
-namespace booking_facilities.Controllers
+namespace booking_facilitiesTest.Controllers
 {
     public class StatusController_Test
     {
