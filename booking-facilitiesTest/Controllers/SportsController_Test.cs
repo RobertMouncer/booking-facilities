@@ -24,6 +24,8 @@ namespace booking_facilitiesTest.Controllers
             Controller = new SportsController(Repository.Object);
         }
 
+        //pagination on the index page makes this method difficult
+        //also the use of IQueryables which is questionable design
         [Fact]
         public  void Index_ShowCorrectView()
         {
@@ -32,6 +34,8 @@ namespace booking_facilitiesTest.Controllers
             Assert.Null(result);
         }
 
+        //pagination on the index page makes this method difficult
+        //also the use of IQueryables which is questionable design
         [Fact]
         public async void Index_ContainsCorrectModel()
         {
@@ -48,6 +52,18 @@ namespace booking_facilitiesTest.Controllers
             var viewResult = result as ViewResult;
             Assert.Null(viewResult.ViewName);
         }
+
+        [Fact]
+        public async void Create_ContainsCorrectModel()
+        {
+            var expectedResource = SportGenerator.Create();
+            var viewResult = Controller.Create() as ViewResult;
+            Assert.IsType<Sport>(viewResult.Model);
+
+            var resources = viewResult.Model as Sport;
+            Assert.Equal(expectedResource, resources);
+        }
+
 
         [Fact]
         public async void Delete_ShowsCorrectView()
