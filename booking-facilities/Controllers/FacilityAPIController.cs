@@ -32,7 +32,7 @@ namespace booking_facilities.Controllers
         }
 
         [HttpGet("{venueId}/{sportId}")]
-        public IActionResult GetSport([FromRoute] int venueId, [FromRoute] int sportId)
+        public IActionResult GetFacilitiesByVenueSport([FromRoute] int venueId, [FromRoute] int sportId)
         {
             var facilities = facilityRepository.GetAllAsync().Where(f => f.VenueId.Equals(venueId) && f.SportId.Equals(sportId));
 

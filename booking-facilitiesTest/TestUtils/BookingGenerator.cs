@@ -21,6 +21,20 @@ namespace booking_facilitiesTest.TestUtils
             };
         }
 
+        public static Booking CreateBlock(int index = 0)
+        {
+            var facility = FacilityGenerator.Create();
+            return new Booking
+            {
+                Facility = facility,
+                FacilityId = facility.FacilityId,
+                BookingDateTime = DateTime.Now.AddHours(index),
+                EndBookingDateTime = DateTime.Now.AddHours(index + 1),
+                UserId = "f94e903b-54ea-47c3-b709-ad6d95ec3556",
+                IsBlock = false
+            };
+        }
+
         public static List<Booking> CreateList(int length = 5)
         {
             List<Booking> list = new List<Booking>();

@@ -53,7 +53,7 @@ namespace booking_facilitiesTest.Repositories
                 Assert.Equal(1, await context.Booking.CountAsync());
 
                 await repository.DeleteAsync(booking);
-                Assert.Equal(0, await context.Sport.CountAsync());
+                Assert.Equal(0, await context.Booking.CountAsync());
             }
         }
 
