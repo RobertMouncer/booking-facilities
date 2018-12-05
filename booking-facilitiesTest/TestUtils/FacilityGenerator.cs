@@ -9,11 +9,15 @@ namespace booking_facilitiesTest.TestUtils
     {
         public static Facility Create(int index = 0)
         {
+            var sport = SportGenerator.Create();
+            var venue = VenueGenerator.Create();
             return new Facility
             {
                 FacilityName = "Court" + index,
-                SportId = SportGenerator.Create().SportId,
-                VenueId = VenueGenerator.Create().VenueId
+                SportId = sport.SportId,
+                Sport = sport,
+                Venue = venue,
+                VenueId = venue.VenueId
             };
         }
 
