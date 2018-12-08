@@ -47,8 +47,7 @@ namespace booking_facilities.Controllers
         public IActionResult GetAllSports()
         {
             var sports = sportRepository.GetAllAsync();
-            var results = new List<Sport>();
-            return Ok(results);
+            return Ok(sports.ToList());
         }
 
     }

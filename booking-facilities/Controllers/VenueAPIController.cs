@@ -28,8 +28,7 @@ namespace booking_facilities.Controllers
         public IActionResult GetAllVenues()
         {
             var venues = venueRepository.GetAllAsync();
-            var results = new List<Venue>();
-            return Ok(results);
+            return Ok(venues.ToList());
         }
     }
 }
