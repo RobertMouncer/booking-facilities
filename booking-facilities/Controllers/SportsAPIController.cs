@@ -25,7 +25,6 @@ namespace booking_facilities.Controllers
             this.facilityRepository = facilityRepository;
         }
 
-
         // GET: sports/getSportsByVenue/5
         [HttpGet("getSportsByVenue/{id}")]
         public IActionResult GetSport([FromRoute] int id)
@@ -41,6 +40,15 @@ namespace booking_facilities.Controllers
             }
 
             return Ok(results.Distinct());
+        }
+
+        // GET: sports
+        [HttpGet]
+        public IActionResult GetAllSports()
+        {
+            var sports = sportRepository.GetAllAsync();
+            var results = new List<Sport>();
+            return Ok(results);
         }
 
     }
