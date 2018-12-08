@@ -29,7 +29,7 @@ namespace booking_facilities.Controllers
         [HttpGet]
         public IEnumerable<Booking> GetBooking()
         {
-            return bookingRepository.GetAllAsync();
+            return bookingRepository.GetAllAsync().Include(b => b.Facility).Include(b => b.Facility.Venue).Include(b => b.Facility.Sport);
         }
 
         // GET: api/booking/5

@@ -28,13 +28,13 @@ namespace booking_facilities.Controllers
         [HttpGet]
         public IEnumerable<Facility> GetFacility()
         {
-            return facilityRepository.GetAllAsync();
+            return facilityRepository.GetAllAsync().Include(f => f.Venue).Include(f => f.Sport);
         }
 
         [HttpGet("{venueId}/{sportId}")]
         public IActionResult GetFacilitiesByVenueSport([FromRoute] int venueId, [FromRoute] int sportId)
         {
-            var facilities = facilityRepository.GetAllAsync().Where(f => f.VenueId.Equals(venueId) && f.SportId.Equals(sportId));
+            var facilities = facilityRepository.GetAllAsync().Where(f => f.VenueId.Equals(venueId) && f.SportId.Equals(sportId)).Include(f => f.Venue).Include(f => f.Sport);
 
             return Ok(facilities.ToList());
         }
