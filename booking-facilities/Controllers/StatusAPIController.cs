@@ -7,11 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace booking_facilities.Controllers
 {
-    [Route("/[controller]")]
+    [Route("api/status")]
     [ApiController]
     public class StatusAPIController : ControllerBase
     {
-        // GET: /Status
+        // GET: /api/status
         [HttpGet]
         public IActionResult Get()
         {
