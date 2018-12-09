@@ -142,7 +142,7 @@ namespace booking_facilities.Controllers
                 return BadRequest();
             }
 
-           
+            booking.EndBookingDateTime = booking.BookingDateTime.AddHours(1);
 
             try
             {
@@ -169,7 +169,6 @@ namespace booking_facilities.Controllers
         {
             booking.FacilityId = getFacility(venueId, sportId, booking);
             
-
             if (DateTime.Compare(booking.BookingDateTime, DateTime.Now) <= 0)
             {
                 ModelState.AddModelError("BookingDateTime", "Date/Time is in the past. Please enter future Date/Time.");
@@ -183,9 +182,15 @@ namespace booking_facilities.Controllers
                 return BadRequest(ModelState);
             }
 
-            await bookingRepository.AddAsync(booking);
+            booking.EndBookingDateTime = booking.BookingDateTime.AddHours(1);
 
-            return CreatedAtAction("GetBooking", new { id = booking.BookingId }, booking);
+            await bookingRepository.AddAsync(booking);
+            var newBooking = await bookingRepository.GetAllAsync().Include(b => b.Facility.Sport)
+                                                 .Include(b => b.Facility.Venue)
+                                                 .Include(b => b.Facility)
+                                                 .FirstOrDefaultAsync(b => b.BookingId.Equals(booking.BookingId));
+
+            return CreatedAtAction("GetBooking", new { id = booking.BookingId }, newBooking);
         }
 
         // DELETE: api/booking
