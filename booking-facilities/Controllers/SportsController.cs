@@ -37,24 +37,6 @@ namespace booking_facilities.Controllers
             return View();
         }
 
-        // GET: Sports/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var sport = await sportRepository.GetByIdAsync(id.Value);
-
-            if (sport == null)
-            {
-                return NotFound();
-            }
-
-            return View(sport);
-        }
-
         // GET: Sports/Create
         public IActionResult Create()
         {

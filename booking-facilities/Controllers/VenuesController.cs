@@ -40,23 +40,6 @@ namespace booking_facilities.Controllers
             return View();
         }
 
-        // GET: Venues/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var venue = await venueRepository.GetByIdAsync(id.Value);
-            if (venue == null)
-            {
-                return NotFound();
-            }
-
-            return View(venue);
-        }
-
         // GET: Venues/Create
         public IActionResult Create()
         {

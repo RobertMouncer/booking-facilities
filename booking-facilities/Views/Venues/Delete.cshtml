@@ -1,27 +1,36 @@
 ﻿@model booking_facilities.Models.Venue
-
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Delete Venue";
 }
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <strong class="card-title">Delete Venue</strong>
+            </div>
+            <div class="card-body">
 
-<h2>Delete</h2>
+                <h3>Are you sure you want to delete this?</h3>
+                <div>
+  
+                    <hr />
+                    <dl class="dl-horizontal">
+                        <dt>
+                            @Html.DisplayNameFor(model => model.VenueName)
+                        </dt>
+                        <dd>
+                            @Html.DisplayFor(model => model.VenueName)
+                        </dd>
+                    </dl>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>Venue</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.VenueName)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.VenueName)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="VenueId" />
-        <input type="submit" value="Delete" class="btn btn-default" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="VenueId" />
+                        <input type="submit" value="Delete" class="btn btn-danger" />
+                        <a asp-action="Index" class="btn btn-info">Back to List</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
