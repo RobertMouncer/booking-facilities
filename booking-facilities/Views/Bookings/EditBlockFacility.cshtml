@@ -1,9 +1,7 @@
 ﻿@model booking_facilities.Models.Booking
-
 @{
     ViewData["Title"] = "Edit Facility Block";
 }
-
 <div class="row">
     <div class="col-md-4">
         <div class="card">
@@ -54,7 +52,6 @@
                         <input type="submit" value="Update Facility Block" class="btn btn-default" />
                     </div>
                 </form>
-
                 <div>
                     <a asp-action="Index">Back to List</a>
                 </div>
@@ -62,67 +59,14 @@
         </div>
     </div>
 </div>
-       
-        @section Scripts {
-            @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-            <script>
-        function updateDateTime() {
-            document.getElementById("EndBookingDateTime").value = document.getElementById("EndBookingDateId").value + "T" + jQuery("#endTimeDDL :selected").text();
-            document.getElementById("BookingDateTime").value = document.getElementById("BookingDateId").value  + "T" + jQuery("#timeDDL :selected").text();
-        }
 
-        function updateSports() {
-            urlVenues = '@Url.Content("~/")' + "api/Sports/getSportsByVenue/"  + jQuery("#venueDDL").val();
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{await Html.RenderPartialAsync("_BookingScriptsPartial");}
+    <script type="text/javascript">
 
-            jQuery.ajax({
-                url: urlVenues,
-                success: function (json) {
-
-                    var items = "";
-                    jQuery.each(json, function (i, sport) {
-                        items += "<option value='" + sport.sportId + "'>" + sport.sportName + "</option>";
-                    })
-                    jQuery("#sportDDL").empty().html(items);
-                    updateFacilities();
-                }
-            });
-        }
-
-        function updateFacilities() {
-            urlFacilities = '@Url.Content("~/")' + "api/Facilities/" + jQuery("#venueDDL").val() + "/" + jQuery("#sportDDL").val();
-            jQuery.ajax({
-                url: urlFacilities,
-                success: function (json) {
-
-                    var items = "";
-                    jQuery.each(json, function (i, facility) {
-                        items += "<option value='" + facility.facilityId + "'>" + facility.facilityName + "</option>";
-                    })
-                    jQuery("#facilityDDL").empty().html(items);
-
-                }
-            });
-        }
-
-        function populateTimes() {
-
-            var startTime = 9;
-            var hoursOpen = 12;
-
-            var startTimes = "";
-            var endTimes = "";
-
-            for (i = 0; i < hoursOpen; i++) {
-
-                startTimes += "<option value='" + i + "'>" + ("0" + (i + startTime)).slice(-2) + ":00:00" + "</option>";
-                endTimes += "<option value='" + i + "'>" + ("0" + (i + startTime + 1)).slice(-2) + ":00:00" + "</option>";
-            }
-            jQuery("#timeDDL").empty().html(startTimes);
-            jQuery("#endTimeDDL").empty().html(endTimes);
-
-        }
         updateSports();
         updateFacilities();
         populateTimes();
-            </script>
-        }
+    </script>
+}
