@@ -67,26 +67,6 @@ namespace booking_facilities.Controllers
 
         }
 
-        // GET: Facilities/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var facility = await facilityRepository.GetAllAsync()
-                .Include(f => f.Sport)
-                .Include(f => f.Venue)
-                .FirstOrDefaultAsync(m => m.FacilityId == id);
-            if (facility == null)
-            {
-                return NotFound();
-            }
-
-            return View(facility);
-        }
-
         // GET: Facilities/Create
         public IActionResult Create()
         {

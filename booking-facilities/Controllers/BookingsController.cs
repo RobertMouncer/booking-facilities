@@ -101,32 +101,6 @@ namespace booking_facilities.Controllers
 
         }
 
-        // GET: Bookings/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            //var booking = await bookingRepository.GetByIdAndInclude(id.Value);
-            var booking = await bookingRepository.GetAllAsync().Include(b => b.Facility)
-               .Include(b => b.Facility.Venue)
-               .Include(b => b.Facility.Sport)
-               .FirstOrDefaultAsync(m => m.BookingId == id);
-            if (booking == null)
-            {
-                return NotFound();
-            }
-
-            var response = await apiClient.GetAsync("https://docker2.aberfitness.biz/gatekeeper/api/Users/" + booking.UserId);
-            var json = await response.Content.ReadAsStringAsync();
-            dynamic data = JObject.Parse(json);
-            booking.UserId = data.email;
-
-            return View(booking);
-        }
-
         // GET: Bookings/CreateBlockFacility
         [Authorize(Policy = "Administrator")]
         public IActionResult CreateBlockFacility()

@@ -1,51 +1,52 @@
 ﻿@model IEnumerable<booking_facilities.Models.Facility>
 @using X.PagedList.Mvc.Core;
 @using X.PagedList;
-<link href="/Content/PagedList.css" rel="stylesheet" type="text/css" />
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Facilities Index";
 }
+<div class="card">
+    <div class="card-header">
+        <strong class="card-title">Facilities Index</strong> <a asp-action="Create" class="btn btn-sm btn-success">Create New</a>
+    </div>
+    <div class="table-stats order-table ov-h">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.FacilityName)
+                    </th>
+                    <th>
+                        <a asp-action="Index" asp-route-sortOrder="@ViewData["VenueSortParm"]">@Html.DisplayNameFor(model => model.Venue)</a>
+                    </th>
+                    <th>
+                        <a asp-action="Index" asp-route-sortOrder="@ViewData["SportSortParm"]">@Html.DisplayNameFor(model => model.Sport)</a>
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in ViewBag.onePageOfFacilities)
+                {
+                    <tr>
+                        <td>
+                            @item.FacilityName
+                        </td>
+                        <td>
+                            @item.Venue.VenueName
+                        </td>
+                        <td>
+                            @item.Sport.SportName
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.FacilityId" class="btn btn-info btn-sm">Edit</a>
+                            <a asp-action="Delete" asp-route-id="@item.FacilityId" class="btn btn-danger btn-sm">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
 
-<h2>Index</h2>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.FacilityName)
-            </th>
-            <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["VenueSortParm"]">@Html.DisplayNameFor(model => model.Venue)</a>
-            </th>
-            <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewData["SportSortParm"]">@Html.DisplayNameFor(model => model.Sport)</a>
-</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in ViewBag.onePageOfFacilities)
-        {
-            <tr>
-                <td>
-                    @item.FacilityName
-                </td>
-                <td>
-                    @item.Venue.VenueName
-                </td>
-                <td>
-                    @item.Sport.SportName
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.FacilityId">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.FacilityId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.FacilityId">Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
 @Html.PagedListPager((IPagedList)ViewBag.onePageOfFacilities, page => Url.Action("Index", new { page }))
+
