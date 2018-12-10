@@ -207,7 +207,7 @@ namespace booking_facilities.Controllers
                         if (DateTime.Compare(booking.BookingDateTime, b.BookingDateTime) <= 0 && DateTime.Compare(b.BookingDateTime, booking.EndBookingDateTime.AddHours(-1)) <= 0 && !b.IsBlock)
                         {
                             
-                            await bookingRepository.DeleteAsync(b);
+                            bookingRepository.DeleteAsync(b);
                         }
                     }
                        await bookingRepository.UpdateAsync(booking);
