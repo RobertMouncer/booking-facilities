@@ -48,13 +48,7 @@
                 {
                     <tr>
                         <td>
-                            @if (!item.IsBlock)
-                            {
-                                @item.Facility.Sport.SportName
-                            } else
-                            {
-                                <strong class="text-danger">Blocked!</strong>
-                            }
+                            @item.Facility.Sport.SportName
                         </td>
                         <td>
                             @item.Facility.FacilityName
@@ -69,7 +63,14 @@
                             @item.EndBookingDateTime
                         </td>
                         <td>
-                            @(item.IsBlock ? "Block" : "Booking")
+                            @if (!item.IsBlock)
+                            {
+                                @:Booking
+                            }
+                            else
+                            {
+                                <strong class="text-danger">Blocked!</strong>
+                            }
                         </td>
                         @if (User.Claims.FirstOrDefault(c => c.Type == "user_type").Value.Equals("administrator"))
                         {

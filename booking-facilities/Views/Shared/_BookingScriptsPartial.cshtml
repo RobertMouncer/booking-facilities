@@ -1,9 +1,15 @@
 ﻿<script type="text/javascript">
+
     function updateDateTime() {
     document.getElementById("BookingDateTime").value = document.getElementById("BookingDateId").value + "T" + jQuery("#timeDDL :selected").text();
-}
+    }
 
-function updateSports() {
+    function updateDateTimeBlock() {
+        document.getElementById("BookingDateTime").value = document.getElementById("BookingDateId").value + "T" + jQuery("#timeDDLBlock :selected").text();
+        document.getElementById("EndBookingDateTime").value = document.getElementById("EndBookingDateId").value + "T" + jQuery("#endTimeDDL :selected").text();
+    }
+
+    function updateSports() {
     document.getElementById("BookingDateId").value = document.getElementById("BookingDateTime").value = "";
     jQuery("#timeDDL").empty();
     urlVenues = '@Url.Content("~/")' + "api/Sports/getSportsByVenue" + '/' + jQuery("#venueDDL").val();
@@ -18,6 +24,7 @@ function updateSports() {
                 items += "<option value='" + sport.sportId + "'>" + sport.sportName + "</option>";
             })
             jQuery("#sportDDL").empty().html(items);
+            updateFacilities();
 
         }
     });
@@ -58,8 +65,23 @@ function populateTimes() {
         startTimes += "<option value='" + i + "'>" + ("0" + (i + startTime)).slice(-2) + ":00:00" + "</option>";
         endTimes += "<option value='" + i + "'>" + ("0" + (i + startTime + 1)).slice(-2) + ":00:00" + "</option>";
     }
-    jQuery("#timeDDL").empty().html(startTimes);
+    jQuery("#timeDDLBlock").empty().html(startTimes);
     jQuery("#endTimeDDL").empty().html(endTimes);
 
-}
+    }
+
+
+function updateFacilities() {
+    urlFacilities = '@Url.Content("~/")' + "api/Facilities/" + jQuery("#venueDDL").val() + "/" + jQuery("#sportDDL").val();
+    jQuery.ajax({
+        url: urlFacilities,
+        success: function (json) {
+            var items = "";
+            jQuery.each(json, function (i, facility) {
+                items += "<option value='" + facility.facilityId + "'>" + facility.facilityName + "</option>";
+            })
+            jQuery("#facilityDDL").empty().html(items);
+        }
+    });
+    }
 </script>

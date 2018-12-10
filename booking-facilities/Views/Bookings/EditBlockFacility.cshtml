@@ -23,11 +23,11 @@
                     </div>
                     <div class="form-group">
                         <label for="BookingDateId" class="control-label">Booking Date</label>
-                        <input class="form-control" type="date" id="BookingDateId" onchange="updateDateTime()" />
+                        <input class="form-control" type="date" id="BookingDateId" onchange="updateDateTimeBlock()" />
                     </div>
                     <div class="form-group">
-                        <label for="timeDDL" class="control-label">Booking Time</label>
-                        <select class="form-control" id="timeDDL" onchange="updateDateTime()"></select>
+                        <label for="timeDDLBlock" class="control-label">Booking Time</label>
+                        <select class="form-control" id="timeDDLBlock" onchange="updateDateTimeBlock()"></select>
                     </div>
                     <div class="form-group" id="BookingTimeForm">
                         <label asp-for="BookingDateTime" class="control-label"></label>
@@ -36,11 +36,11 @@
                     </div>
                     <div class="form-group">
                         <label for="EndBookingDateId" class="control-label">End Booking Date</label>
-                        <input class="form-control" type="date" id="EndBookingDateId" onchange="updateDateTime()" />
+                        <input class="form-control" type="date" id="EndBookingDateId" onchange="updateDateTimeBlock()" />
                     </div>
                     <div class="form-group">
                         <label for="endTimeDDL" class="control-label">End Booking Time</label>
-                        <select class="form-control" id="endTimeDDL" onchange="updateDateTime()"></select>
+                        <select class="form-control" id="endTimeDDL" onchange="updateDateTimeBlock()"></select>
                     </div>
                     <div class="form-group" id="BookingTimeForm">
                         <label asp-for="EndBookingDateTime" class="control-label"></label>
