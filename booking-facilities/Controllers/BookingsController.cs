@@ -95,6 +95,9 @@ namespace booking_facilities.Controllers
                     if (b.UserId == j.GetValue("id").ToString())
                     {
                         b.UserId = j.GetValue("email").ToString();
+                    } else
+                    {
+                        b.UserId = "Unknown User";
                     }
                 }
             }
