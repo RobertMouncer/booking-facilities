@@ -28,7 +28,7 @@
     }
   ],
   "paths": {
-    "/status": {
+    "/api/status": {
       "get": {
         "tags": [
           "Status"
@@ -48,7 +48,7 @@
         }
       }
     },
-    "/booking/{venueId}/{sportId}": {
+    "/api/booking/{venueId}/{sportId}": {
       "post": {
         "tags": [
           "Booking"
@@ -104,7 +104,7 @@
         }
       }
     },
-    "/booking/{bookingId}": {
+    "/api/booking/{bookingId}": {
       "get": {
         "tags": [
           "Booking"
@@ -171,7 +171,7 @@
         }
       }
     },
-    "/booking/{date}/{venueId}/{sportId}": {
+    "/api/booking/{date}/{venueId}/{sportId}": {
       "get": {
         "tags": [
           "Booking"
@@ -220,7 +220,7 @@
         }
       }
     },
-    "/booking/update/{bookingId}/{venueId}/{sportId}": {
+    "/api/booking/update/{bookingId}/{venueId}/{sportId}": {
       "put": {
         "tags": [
           "Booking"
@@ -287,7 +287,7 @@
         }
       }
     },
-    "/facilites": {
+    "/api/facilities": {
       "get": {
         "tags": [
           "Factilities"
@@ -310,7 +310,7 @@
         }
       }
     },
-    "/facilities/{venueId}/{sportId}": {
+    "/api/facilities/{venueId}/{sportId}": {
       "get": {
         "tags": [
           "Factilities"
@@ -358,7 +358,7 @@
         }
       }
     },
-    "/sports/getSportsByVenue/{venueId}": {
+    "/api/sports/getSportsByVenue/{venueId}": {
       "get": {
         "tags": [
           "Sports"

@@ -1,4 +1,5 @@
-﻿using booking_facilities.Controllers;
+﻿using AberFitnessAuditLogger;
+using booking_facilities.Controllers;
 using booking_facilities.Models;
 using booking_facilities.Repositories;
 using booking_facilities.Services;
@@ -22,6 +23,7 @@ namespace booking_facilitiesTest.Controllers
         private readonly Mock<ISportRepository> sportRepository;
         private readonly BookingsController Controller;
         private readonly ApiClient apiClient;
+        private readonly IAuditLogger auditLogger;
 
         public BookingController_Test()
         {
@@ -29,7 +31,7 @@ namespace booking_facilitiesTest.Controllers
             facilityRepository = new Mock<IFacilityRepository>();
             venueRepository = new Mock<IVenueRepository>();
             sportRepository = new Mock<ISportRepository>();
-            Controller = new BookingsController(facilityRepository.Object, venueRepository.Object, sportRepository.Object, bookingRepository.Object, apiClient);
+            Controller = new BookingsController(facilityRepository.Object, venueRepository.Object, sportRepository.Object, bookingRepository.Object, apiClient, auditLogger);
         }
 
         //pagination on the index page makes this method difficult

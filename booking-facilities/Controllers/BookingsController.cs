@@ -12,6 +12,8 @@ using booking_facilities.Services;
 using Newtonsoft.Json.Linq;
 using X.PagedList;
 using booking_facilities.Repositories;
+using AberFitnessAuditLogger;
+
 namespace booking_facilities.Controllers
 {
     [Authorize(AuthenticationSchemes = "oidc")]
@@ -22,19 +24,21 @@ namespace booking_facilities.Controllers
         private readonly ISportRepository sportRepository;
         private readonly IBookingRepository bookingRepository;
         private readonly IApiClient apiClient;
-
-        public BookingsController(IFacilityRepository facilityRepository, IVenueRepository venueRepository, ISportRepository sportRepository, IBookingRepository bookingRepository, IApiClient client)
+        private readonly IAuditLogger auditLogger;
+        public BookingsController(IFacilityRepository facilityRepository, IVenueRepository venueRepository, ISportRepository sportRepository, IBookingRepository bookingRepository, IApiClient client, IAuditLogger auditLogger)
         {
             this.venueRepository = venueRepository;
             this.facilityRepository = facilityRepository;
             this.sportRepository = sportRepository;
             this.bookingRepository = bookingRepository;
             apiClient = client;
+            this.auditLogger = auditLogger;
         }
 
         // GET: Bookings
         public async Task<IActionResult> Index(int? page, string sortOrder)
         {
+            await auditLogger.log(GetUserId(), "Accessed Booking Index");
             ViewData["DateSortParm"] = sortOrder == "Date" ? "date_desc" : "Date";
             ViewData["VenueSortParm"] = sortOrder == "Venue" ? "venue_desc" : "Venue";
             ViewData["UserSortParm"] = sortOrder == "User" ? "user_desc" : "User";
@@ -45,7 +49,7 @@ namespace booking_facilities.Controllers
 
             if (!User.Claims.FirstOrDefault(c => c.Type == "user_type").Value.Equals("administrator"))
             {
-                booking_facilitiesContext = booking_facilitiesContext.Where(b => b.UserId.Equals(User.Claims.FirstOrDefault(c => c.Type == "sub").Value) || b.IsBlock);
+                booking_facilitiesContext = booking_facilitiesContext.Where(b => b.UserId.Equals(GetUserId()) || b.IsBlock);
             }
             switch (sortOrder)
             {
@@ -73,11 +77,11 @@ namespace booking_facilities.Controllers
             var bookingList = await booking_facilitiesContext.ToListAsync();
 
             List<string> userList = new List<string>();
-            foreach(Booking b in bookingList)
+            foreach (Booking b in bookingList)
             {
                 userList.Add(b.UserId);
             }
-            
+
             var response = await apiClient.PostAsync("https://docker2.aberfitness.biz/gatekeeper/api/Users/Batch", userList.Distinct());
             JArray jsonArrayOfUsers = JArray.Parse(await response.Content.ReadAsStringAsync());
             foreach (Booking b in bookingList)
@@ -91,7 +95,7 @@ namespace booking_facilities.Controllers
                 }
             }
 
-            
+
             var pageNumber = page ?? 1; // if no page was specified in the querystring, default to the first page (1)
             var bookingsPerPage = 10;
             var onePageOfBookings = bookingList.ToPagedList(pageNumber, bookingsPerPage); // will only contain 25 products max because of the pageSize
@@ -103,8 +107,9 @@ namespace booking_facilities.Controllers
 
         // GET: Bookings/CreateBlockFacility
         [Authorize(Policy = "Administrator")]
-        public IActionResult CreateBlockFacility()
+        public async Task<IActionResult> CreateBlockFacility()
         {
+            await auditLogger.log(GetUserId(), "Accessed Blocking Create");
             ViewData["VenueId"] = new SelectList(venueRepository.GetAllAsync(), "VenueId", "VenueName");
             ViewData["FacilityId"] = new SelectList(facilityRepository.GetAllAsync(), "FacilityId", "FacilityName");
             ViewData["SportId"] = new SelectList(sportRepository.GetAllAsync(), "SportId", "SportName");
@@ -118,7 +123,7 @@ namespace booking_facilities.Controllers
         {
             booking.IsBlock = true;
 
-            booking.UserId = User.Claims.FirstOrDefault(c => c.Type == "sub").Value;
+            booking.UserId = GetUserId();
             var bookings = bookingRepository.GetAllAsync().Where(b => b.FacilityId.Equals(booking.FacilityId));
 
             if (DateTime.Compare(booking.BookingDateTime, DateTime.Now) <= 0)
@@ -132,23 +137,24 @@ namespace booking_facilities.Controllers
             if (ModelState.IsValid)
             {
 
-                foreach(Booking b in bookings)
+                foreach (Booking b in bookings)
                 {
                     //true if (new booking start time is before old booking start time) AND if (new booking end time is after old booking end time)
-                    if (DateTime.Compare(booking.BookingDateTime,b.BookingDateTime) <= 0 && DateTime.Compare(b.BookingDateTime, booking.EndBookingDateTime.AddHours(-1)) <= 0 && !b.IsBlock)
+                    if (DateTime.Compare(booking.BookingDateTime, b.BookingDateTime) <= 0 && DateTime.Compare(b.BookingDateTime, booking.EndBookingDateTime.AddHours(-1)) <= 0 && !b.IsBlock)
                     {
                         bookingRepository.DeleteAsync(b);
+                        await auditLogger.log(GetUserId(), $"Deleted booking: {b.BookingId} owned by {b.UserId}");
                     }
                 }
 
-                await bookingRepository.AddAsync(booking);
-
+                booking = await bookingRepository.AddAsync(booking);
+                await auditLogger.log(GetUserId(), $"created blocking: {booking.BookingId}");
                 return RedirectToAction(nameof(Index));
             }
 
             ViewData["VenueId"] = new SelectList(venueRepository.GetAllAsync(), "VenueId", "VenueName");
             ViewData["FacilityId"] = new SelectList(facilityRepository.GetAllAsync(), "FacilityId", "FacilityName");
-            ViewData["SportId"] = new SelectList(sportRepository.GetAllAsync(), "SportId", "SportName"); 
+            ViewData["SportId"] = new SelectList(sportRepository.GetAllAsync(), "SportId", "SportName");
             return View(booking);
         }
 
@@ -159,7 +165,7 @@ namespace booking_facilities.Controllers
             {
                 return NotFound();
             }
-
+            await auditLogger.log(GetUserId(), "Accessed Block Facility");
             var booking = await bookingRepository.GetByIdAsync(id.Value);
 
             if (booking == null)
@@ -182,7 +188,7 @@ namespace booking_facilities.Controllers
             //do times
             booking.IsBlock = true;
 
-            booking.UserId = User.Claims.FirstOrDefault(c => c.Type == "sub").Value;
+            booking.UserId = GetUserId();
 
             //must compare bookingId in where because you can't inspect a booking currently being edited WTF!!!!
 
@@ -206,11 +212,13 @@ namespace booking_facilities.Controllers
                     {
                         if (DateTime.Compare(booking.BookingDateTime, b.BookingDateTime) <= 0 && DateTime.Compare(b.BookingDateTime, booking.EndBookingDateTime.AddHours(-1)) <= 0 && !b.IsBlock)
                         {
-                            
+
                             bookingRepository.DeleteAsync(b);
+                            await auditLogger.log(GetUserId(), $"Deleted booking: {b.BookingId} owned by {b.UserId}");
                         }
                     }
-                       await bookingRepository.UpdateAsync(booking);
+                    booking = await bookingRepository.UpdateAsync(booking);
+                    await auditLogger.log(GetUserId(), $"created blocking: {booking.BookingId}");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -231,14 +239,15 @@ namespace booking_facilities.Controllers
             return View(booking);
         }
 
-            // GET: Bookings/Create
-        public IActionResult Create()
+        // GET: Bookings/Create
+        public async Task<IActionResult> Create()
         {
+            await auditLogger.log(GetUserId(), "Accessed Create Booking");
             ViewData["VenueId"] = new SelectList(venueRepository.GetAllAsync(), "VenueId", "VenueName");
             ViewData["SportId"] = new SelectList(sportRepository.GetAllAsync(), "SportId", "SportName");
             return View();
         }
-        
+
 
 
         // POST: Bookings/Create
@@ -248,9 +257,9 @@ namespace booking_facilities.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("BookingId,FacilityId,BookingDateTime,UserId,EndBookingDateTime")] Booking booking, [Bind("VenueId")] int VenueId, [Bind("SportId")] int SportId)
         {
-            
+
             booking.EndBookingDateTime = booking.BookingDateTime.AddHours(1);
-            booking.UserId = User.Claims.FirstOrDefault(c => c.Type == "sub").Value;
+            booking.UserId = GetUserId();
 
             var bookings = bookingRepository.GetBookingsInLocationAtDateTime(booking.BookingDateTime, VenueId, SportId);
             var facilities = facilityRepository.GetAllAsync();
@@ -273,7 +282,8 @@ namespace booking_facilities.Controllers
 
             if (ModelState.IsValid)
             {
-                await bookingRepository.AddAsync(booking);
+                booking = await bookingRepository.AddAsync(booking);
+                await auditLogger.log(GetUserId(), $"Created booking {booking.BookingId}");
                 return RedirectToAction(nameof(Index));
             }
             ViewData["VenueId"] = new SelectList(venueRepository.GetAllAsync(), "VenueId", "VenueName");
@@ -288,7 +298,7 @@ namespace booking_facilities.Controllers
             {
                 return NotFound();
             }
-
+            await auditLogger.log(GetUserId(), "Accessed Edit Booking");
             var booking = await bookingRepository.GetByIdAsync(id.Value);
             if (booking == null)
             {
@@ -307,7 +317,7 @@ namespace booking_facilities.Controllers
         public async Task<IActionResult> Edit(int id, [Bind("BookingId,FacilityId,BookingDateTime,UserId,EndBookingDateTime")] Booking booking, [Bind("VenueId")] int VenueId, [Bind("SportId")] int SportId)
         {
             booking.EndBookingDateTime = booking.BookingDateTime.AddHours(1);
-            booking.UserId = User.Claims.FirstOrDefault(c => c.Type == "sub").Value;
+            booking.UserId = GetUserId();
 
             var bookings = bookingRepository.GetBookingsInLocationAtDateTime(booking.BookingDateTime, VenueId, SportId);
             var facilities = facilityRepository.GetAllAsync();
@@ -334,8 +344,9 @@ namespace booking_facilities.Controllers
             {
                 try
                 {
-                    
-                    await bookingRepository.UpdateAsync(booking);
+
+                    booking = await bookingRepository.UpdateAsync(booking);
+                    await auditLogger.log(GetUserId(), $"Edited booking {booking.BookingId}");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -363,14 +374,14 @@ namespace booking_facilities.Controllers
             {
                 return NotFound();
             }
-            
+            await auditLogger.log(GetUserId(), $"Accessed delete booking {id}");
 
             var booking = await bookingRepository.GetAllAsync().Include(b => b.Facility)
                                                                .Include(b => b.Facility.Venue)
                                                                .Include(b => b.Facility.Sport)
                                                                .FirstOrDefaultAsync(m => m.BookingId == id);
 
-            if (User.Claims.FirstOrDefault(c => c.Type == "sub").Value != booking.UserId 
+            if (GetUserId() != booking.UserId
                 && !User.Claims.FirstOrDefault(c => c.Type == "user_type").Value.Equals("administrator"))
             {
                 return Unauthorized();
@@ -381,7 +392,7 @@ namespace booking_facilities.Controllers
             {
                 return NotFound();
             }
-            
+
             var response = await apiClient.GetAsync("https://docker2.aberfitness.biz/gatekeeper/api/Users/" + booking.UserId);
             var json = await response.Content.ReadAsStringAsync();
             dynamic data = JObject.Parse(json);
@@ -397,6 +408,7 @@ namespace booking_facilities.Controllers
         {
             var booking = await bookingRepository.GetByIdAsync(id);
             await bookingRepository.DeleteAsync(booking);
+            await auditLogger.log(GetUserId(), $"Deleted booking {id}");
             return RedirectToAction(nameof(Index));
         }
 
@@ -456,6 +468,10 @@ namespace booking_facilities.Controllers
             }
 
             return -1;
+        }
+        public string GetUserId()
+        {
+            return User.Claims.FirstOrDefault(c => c.Type == "sub").Value;
         }
     }
 }

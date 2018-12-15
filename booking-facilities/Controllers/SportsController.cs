@@ -9,6 +9,7 @@ using booking_facilities.Models;
 using Microsoft.AspNetCore.Authorization;
 using X.PagedList;
 using booking_facilities.Repositories;
+using AberFitnessAuditLogger;
 
 namespace booking_facilities.Controllers
 {
@@ -16,15 +17,18 @@ namespace booking_facilities.Controllers
     public class SportsController : Controller
     {
         private readonly ISportRepository sportRepository;
+        private readonly IAuditLogger auditLogger;
 
-        public SportsController(ISportRepository sportRepository)
+        public SportsController(ISportRepository sportRepository, IAuditLogger auditLogger)
         {
             this.sportRepository = sportRepository;
+            this.auditLogger = auditLogger;
         }
 
         // GET: Sports
         public async Task<IActionResult> Index(int? page)
         {
+            await auditLogger.log(GetUserId(), "Accessed Sport Index");
             var sportsQ = sportRepository.GetAllAsync().OrderBy(s => s.SportName);
             var sportsList = await sportsQ.ToListAsync();
 
@@ -38,8 +42,9 @@ namespace booking_facilities.Controllers
         }
 
         // GET: Sports/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            await auditLogger.log(GetUserId(), "Accessed Create Sport");
             return View();
         }
 
@@ -57,7 +62,8 @@ namespace booking_facilities.Controllers
 
             if (ModelState.IsValid)
             {
-                await sportRepository.AddAsync(sport);
+                sport = await sportRepository.AddAsync(sport);
+                await auditLogger.log(GetUserId(), $"Created Sport {sport.SportName}");
                 return RedirectToAction(nameof(Index));
             }
             return View(sport);
@@ -70,7 +76,7 @@ namespace booking_facilities.Controllers
             {
                 return NotFound();
             }
-
+            await auditLogger.log(GetUserId(), $"Accessed Edit Sport {id}");
             var sport = await sportRepository.GetByIdAsync(id.Value);
             if (sport == null)
             {
@@ -101,6 +107,7 @@ namespace booking_facilities.Controllers
                 try
                 {
                     await sportRepository.UpdateAsync(sport);
+                    await auditLogger.log(GetUserId(), $"Edited Sport {id}");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -125,7 +132,7 @@ namespace booking_facilities.Controllers
             {
                 return NotFound();
             }
-
+            await auditLogger.log(GetUserId(), $"Accessed Delete Sport {id}");
             var sport = await sportRepository.GetByIdAsync(id.Value);
 
             if (sport == null)
@@ -143,8 +150,12 @@ namespace booking_facilities.Controllers
         {
             var sport = await sportRepository.GetByIdAsync(id);
             await sportRepository.DeleteAsync(sport);
+            await auditLogger.log(GetUserId(), $"Deleted Sport {id}");
             return RedirectToAction(nameof(Index));
         }
-       
+        public string GetUserId()
+        {
+            return User.Claims.FirstOrDefault(c => c.Type == "sub").Value;
+        }
     }
 }
