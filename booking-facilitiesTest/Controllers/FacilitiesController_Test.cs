@@ -1,4 +1,5 @@
-﻿using booking_facilities.Controllers;
+﻿using AberFitnessAuditLogger;
+using booking_facilities.Controllers;
 using booking_facilities.Models;
 using booking_facilities.Repositories;
 using booking_facilitiesTest.TestUtils;
@@ -21,6 +22,7 @@ namespace booking_facilitiesTest.Controllers
         private readonly Mock<ISportRepository> sportRepository;
         private readonly Mock<IBookingRepository> bookingRepository;
         private readonly FacilitiesController Controller;
+        private readonly IAuditLogger auditLogger;
 
         public FacilitiesController_Test()
         {
@@ -31,7 +33,7 @@ namespace booking_facilitiesTest.Controllers
             Controller = new FacilitiesController(facilityRepository.Object, 
                                                     venueRepository.Object, 
                                                     sportRepository.Object, 
-                                                    bookingRepository.Object);
+                                                    bookingRepository.Object, auditLogger);
         }
 
         [Fact]

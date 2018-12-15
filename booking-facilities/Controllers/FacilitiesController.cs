@@ -9,6 +9,7 @@ using booking_facilities.Models;
 using Microsoft.AspNetCore.Authorization;
 using X.PagedList;
 using booking_facilities.Repositories;
+using AberFitnessAuditLogger;
 
 namespace booking_facilities.Controllers
 {
@@ -19,21 +20,25 @@ namespace booking_facilities.Controllers
         private readonly IVenueRepository venueRepository;
         private readonly ISportRepository sportRepository;
         private readonly IBookingRepository bookingRepository;
+        private readonly IAuditLogger auditLogger;
 
         public FacilitiesController(IFacilityRepository facilityRepository,
                                     IVenueRepository venueRepository,
                                     ISportRepository sportRepository,
-                                    IBookingRepository bookingRepository)
+                                    IBookingRepository bookingRepository,
+                                    IAuditLogger auditLogger)
         {
             this.facilityRepository = facilityRepository;
             this.venueRepository = venueRepository;
             this.sportRepository = sportRepository;
             this.bookingRepository = bookingRepository;
+            this.auditLogger = auditLogger;
         }
 
         // GET: Facilities
         public async Task<IActionResult> Index(int? page, string sortOrder)
         {
+            await auditLogger.log(GetUserId(), "Accessed Index Facilities");
             ViewData["VenueSortParm"] = sortOrder == "Venue" ? "venue_desc" : "Venue";
             ViewData["SportSortParm"] = sortOrder == "Sport" ? "sport_desc" : "Sport";
 
@@ -68,8 +73,9 @@ namespace booking_facilities.Controllers
         }
 
         // GET: Facilities/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            await auditLogger.log(GetUserId(), "Accessed Create Facilities");
             ViewData["SportId"] = new SelectList(sportRepository.GetAllAsync(), "SportId", "SportName");
             ViewData["VenueId"] = new SelectList(venueRepository.GetAllAsync(), "VenueId", "VenueName");
             return View();
@@ -88,7 +94,8 @@ namespace booking_facilities.Controllers
             }
             else if (ModelState.IsValid)
             {
-                await facilityRepository.AddAsync(facility);
+                facility = await facilityRepository.AddAsync(facility);
+                await auditLogger.log(GetUserId(), $"Created facility {facility.FacilityId}");
                 return RedirectToAction(nameof(Index));
             }
             ViewData["SportId"] = new SelectList(sportRepository.GetAllAsync(), "SportId", "SportName", facility.SportId);
@@ -103,7 +110,7 @@ namespace booking_facilities.Controllers
             {
                 return NotFound();
             }
-
+            await auditLogger.log(GetUserId(), $"Accessed Edit Facility {id}");
             var facility = await facilityRepository.GetByIdAsync(id.Value);
             if (facility == null)
             {
@@ -138,9 +145,11 @@ namespace booking_facilities.Controllers
                     foreach(Booking b in bookingsForFacility)
                     {
                         await bookingRepository.DeleteAsync(b);
+                        await auditLogger.log(GetUserId(), $"Deleted bookings {b.BookingId}");
                     }
-                    
-                    await facilityRepository.UpdateAsync(facility);
+
+                    facility = await facilityRepository.UpdateAsync(facility);
+                    await auditLogger.log(GetUserId(), $"Updated facility {facility.FacilityId}");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -168,6 +177,8 @@ namespace booking_facilities.Controllers
                 return NotFound();
             }
 
+            await auditLogger.log(GetUserId(), $"Accessed Delete facility {id}");
+
             var facility = await facilityRepository.GetAllAsync()
                 .Include(f => f.Sport)
                 .Include(f => f.Venue)
@@ -187,12 +198,17 @@ namespace booking_facilities.Controllers
         {
             var facility = await facilityRepository.GetByIdAsync(id);
             await facilityRepository.DeleteAsync(facility);
+            await auditLogger.log(GetUserId(), $"Deleted facility {id}");
             return RedirectToAction(nameof(Index));
         }
 
         private bool FacilityExists(int id)
         {
             return facilityRepository.FacilityExists(id);
+        }
+        public string GetUserId()
+        {
+            return User.Claims.FirstOrDefault(c => c.Type == "sub").Value;
         }
     }
 }

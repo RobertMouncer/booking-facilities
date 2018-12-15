@@ -9,6 +9,7 @@ using booking_facilities.Models;
 using Microsoft.AspNetCore.Authorization;
 using X.PagedList;
 using booking_facilities.Repositories;
+using AberFitnessAuditLogger;
 
 namespace booking_facilities.Controllers
 {
@@ -16,15 +17,18 @@ namespace booking_facilities.Controllers
     public class VenuesController : Controller
     {
         private readonly IVenueRepository venueRepository;
+        private readonly IAuditLogger auditLogger;
 
-        public VenuesController(IVenueRepository venueRepository)
+        public VenuesController(IVenueRepository venueRepository, IAuditLogger auditLogger)
         {
             this.venueRepository = venueRepository;
+            this.auditLogger = auditLogger;
         }
 
         // GET: Venues
         public async Task<IActionResult> Index(int? page)
         {
+            await auditLogger.log(GetUserId(), "Accessed Venue Index");
             IQueryable<Venue> venues =  venueRepository.GetAllAsync().OrderBy(v => v.VenueName);
 
             venues = venues.OrderBy(v => v.VenueName);
@@ -41,8 +45,9 @@ namespace booking_facilities.Controllers
         }
 
         // GET: Venues/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            await auditLogger.log(GetUserId(), "Accessed Create Venue");
             return View();
         }
 
@@ -59,7 +64,8 @@ namespace booking_facilities.Controllers
             }
             else if (ModelState.IsValid)
             {
-                await venueRepository.AddAsync(venue);
+                venue = await venueRepository.AddAsync(venue);
+                await auditLogger.log(GetUserId(), $"Venue Created {venue.VenueName}");
                 return RedirectToAction(nameof(Index));
             }
             return View(venue);
@@ -72,7 +78,7 @@ namespace booking_facilities.Controllers
             {
                 return NotFound();
             }
-
+            await auditLogger.log(GetUserId(), $"Venuie Edit Accessed {id}");
             var venue = await venueRepository.GetByIdAsync(id.Value);
             if (venue == null)
             {
@@ -102,6 +108,7 @@ namespace booking_facilities.Controllers
                 try
                 {
                     await venueRepository.UpdateAsync(venue);
+                    await auditLogger.log(GetUserId(), $"Venuie Edited {venue.VenueName}");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -126,7 +133,7 @@ namespace booking_facilities.Controllers
             {
                 return NotFound();
             }
-
+            await auditLogger.log(GetUserId(), $"Venuie Delete Accessed {id}");
             var venue = await venueRepository.GetByIdAsync(id.Value);
             if (venue == null)
             {
@@ -143,12 +150,17 @@ namespace booking_facilities.Controllers
         {
             var venue = await venueRepository.GetByIdAsync(id);
             await venueRepository.DeleteAsync(venue);
+            await auditLogger.log(GetUserId(), $"Venuie Deleted {id}");
             return RedirectToAction(nameof(Index));
         }
 
         private bool VenueExists(int id)
         {
             return venueRepository.VenueExists(id);
+        }
+        public string GetUserId()
+        {
+            return User.Claims.FirstOrDefault(c => c.Type == "sub").Value;
         }
     }
 }

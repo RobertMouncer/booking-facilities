@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Authentication;
 using System.IdentityModel.Tokens.Jwt;
 using Serilog;
 using booking_facilities.Repositories;
+using AberFitnessAuditLogger;
 
 namespace booking_facilities
 {
@@ -98,7 +99,7 @@ namespace booking_facilities
             services.AddScoped<IVenueRepository, VenueRepository>();
             services.AddScoped<IBookingRepository, BookingRepository>();
             services.AddScoped<IFacilityRepository, FacilityRepository>();
-
+            services.AddScoped<IAuditLogger, AuditLogger>();
             if (!environment.IsDevelopment())
             {
                 services.Configure<ForwardedHeadersOptions>(options =>
