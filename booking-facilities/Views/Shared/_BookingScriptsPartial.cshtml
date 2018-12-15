@@ -1,0 +1,87 @@
+﻿<script type="text/javascript">
+
+    function updateDateTime() {
+    document.getElementById("BookingDateTime").value = document.getElementById("BookingDateId").value + "T" + jQuery("#timeDDL :selected").text();
+    }
+
+    function updateDateTimeBlock() {
+        document.getElementById("BookingDateTime").value = document.getElementById("BookingDateId").value + "T" + jQuery("#timeDDLBlock :selected").text();
+        document.getElementById("EndBookingDateTime").value = document.getElementById("EndBookingDateId").value + "T" + jQuery("#endTimeDDL :selected").text();
+    }
+
+    function updateSports() {
+    document.getElementById("BookingDateId").value = document.getElementById("BookingDateTime").value = "";
+    jQuery("#timeDDL").empty();
+    urlVenues = '@Url.Content("~/")' + "api/Sports/getSportsByVenue" + '/' + jQuery("#venueDDL").val();
+
+
+    jQuery.ajax({
+        url: urlVenues,
+        success: function (json) {
+
+            var items = "";
+            jQuery.each(json, function (i, sport) {
+                items += "<option value='" + sport.sportId + "'>" + sport.sportName + "</option>";
+            })
+            jQuery("#sportDDL").empty().html(items);
+            updateFacilities();
+
+        }
+    });
+}
+
+function getTimes() {
+
+    var urlBooking = '@Url.Content("~/")' + "api/booking/" + document.getElementById("BookingDateId").value + "/" + jQuery("#venueDDL").val() + "/" + jQuery("#sportDDL").val();
+    jQuery.ajax({
+        url: urlBooking,
+        success: function (json) {
+            var times = "";
+            jQuery("#BookingTimeForm").show();
+
+            jQuery.each(json, function (i, time) {
+                var dout = new Date(Date.parse(time));
+                times += "<option value='" + i + "'>" + ("0" + dout.getHours()).slice(-2) + ":00:00" + "</option>";
+            })
+            jQuery("#timeDDL").empty().html(times);
+            updateDateTime();
+
+        }
+
+    });
+
+}
+
+function populateTimes() {
+
+    var startTime = 9;
+    var hoursOpen = 12;
+
+    var startTimes = "";
+    var endTimes = "";
+
+    for (i = 0; i < hoursOpen; i++) {
+
+        startTimes += "<option value='" + i + "'>" + ("0" + (i + startTime)).slice(-2) + ":00:00" + "</option>";
+        endTimes += "<option value='" + i + "'>" + ("0" + (i + startTime + 1)).slice(-2) + ":00:00" + "</option>";
+    }
+    jQuery("#timeDDLBlock").empty().html(startTimes);
+    jQuery("#endTimeDDL").empty().html(endTimes);
+
+    }
+
+
+function updateFacilities() {
+    urlFacilities = '@Url.Content("~/")' + "api/Facilities/" + jQuery("#venueDDL").val() + "/" + jQuery("#sportDDL").val();
+    jQuery.ajax({
+        url: urlFacilities,
+        success: function (json) {
+            var items = "";
+            jQuery.each(json, function (i, facility) {
+                items += "<option value='" + facility.facilityId + "'>" + facility.facilityName + "</option>";
+            })
+            jQuery("#facilityDDL").empty().html(items);
+        }
+    });
+    }
+</script>

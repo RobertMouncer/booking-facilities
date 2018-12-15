@@ -1,0 +1,72 @@
+﻿@model booking_facilities.Models.Booking
+@{
+    ViewData["Title"] = "Edit Facility Block";
+}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <strong class="card-title">Update Facility Block</strong>
+            </div>
+            <div class="card-body">
+                <form asp-action="EditBlockFacility">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="BookingId" />
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Facility.VenueId, new { @class = "control-label" })
+                        @Html.DropDownList("VenueId", (IEnumerable<SelectListItem>)ViewBag.VenueId, new { @id = "venueDDL", @class = "form-control", @onchange = "updateSports()" })
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="FacilityId" class="control-label"></label>
+                        <select asp-for="FacilityId" class="form-control" asp-items="ViewBag.FacilityId" id="facilityDDL"></select>
+                        <span asp-validation-for="FacilityId" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="BookingDateId" class="control-label">Booking Date</label>
+                        <input class="form-control" type="date" id="BookingDateId" onchange="updateDateTimeBlock()" />
+                    </div>
+                    <div class="form-group">
+                        <label for="timeDDLBlock" class="control-label">Booking Time</label>
+                        <select class="form-control" id="timeDDLBlock" onchange="updateDateTimeBlock()"></select>
+                    </div>
+                    <div class="form-group" id="BookingTimeForm">
+                        <label asp-for="BookingDateTime" class="control-label"></label>
+                        <input asp-for="BookingDateTime" class="form-control" asp-items="ViewBag.BookingDateTime" id="BookingDateTime" readonly="readonly" />
+                        <span asp-validation-for="BookingDateTime" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="EndBookingDateId" class="control-label">End Booking Date</label>
+                        <input class="form-control" type="date" id="EndBookingDateId" onchange="updateDateTimeBlock()" />
+                    </div>
+                    <div class="form-group">
+                        <label for="endTimeDDL" class="control-label">End Booking Time</label>
+                        <select class="form-control" id="endTimeDDL" onchange="updateDateTimeBlock()"></select>
+                    </div>
+                    <div class="form-group" id="BookingTimeForm">
+                        <label asp-for="EndBookingDateTime" class="control-label"></label>
+                        <input asp-for="EndBookingDateTime" class="form-control" asp-items="ViewBag.EndBookingDateTime" id="EndBookingDateTime" readonly="readonly" />
+                        <span asp-validation-for="EndBookingDateTime" class="text-danger"></span>
+                    </div>
+                    <p>Blocking a facility will remove all bookings made during the blocking period.</p>
+                    <div class="form-group">
+                        <input type="submit" value="Update Facility Block" class="btn btn-default" />
+                    </div>
+                </form>
+                <div>
+                    <a asp-action="Index">Back to List</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{await Html.RenderPartialAsync("_BookingScriptsPartial");}
+    <script type="text/javascript">
+
+        updateSports();
+        updateFacilities();
+        populateTimes();
+    </script>
+}
