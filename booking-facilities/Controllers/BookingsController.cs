@@ -13,20 +13,24 @@ using Newtonsoft.Json.Linq;
 using X.PagedList;
 using booking_facilities.Repositories;
 using AberFitnessAuditLogger;
+using Microsoft.Extensions.Configuration;
 
 namespace booking_facilities.Controllers
 {
     [Authorize(AuthenticationSchemes = "oidc")]
     public class BookingsController : Controller
     {
+        private readonly IConfigurationSection AppConfig;
         private readonly IFacilityRepository facilityRepository;
         private readonly IVenueRepository venueRepository;
         private readonly ISportRepository sportRepository;
         private readonly IBookingRepository bookingRepository;
         private readonly IApiClient apiClient;
         private readonly IAuditLogger auditLogger;
-        public BookingsController(IFacilityRepository facilityRepository, IVenueRepository venueRepository, ISportRepository sportRepository, IBookingRepository bookingRepository, IApiClient client, IAuditLogger auditLogger)
+
+        public BookingsController(IConfiguration config, IFacilityRepository facilityRepository, IVenueRepository venueRepository, ISportRepository sportRepository, IBookingRepository bookingRepository, IApiClient client, IAuditLogger auditLogger)
         {
+            AppConfig = config.GetSection("booking_facilities");
             this.venueRepository = venueRepository;
             this.facilityRepository = facilityRepository;
             this.sportRepository = sportRepository;
@@ -82,7 +86,7 @@ namespace booking_facilities.Controllers
                 userList.Add(b.UserId);
             }
 
-            var response = await apiClient.PostAsync("https://docker2.aberfitness.biz/gatekeeper/api/Users/Batch", userList.Distinct());
+            var response = await apiClient.PostAsync(AppConfig.GetValue<string>("GatekeeperUrl") + "api/Users/Batch", userList.Distinct());
             JArray jsonArrayOfUsers = JArray.Parse(await response.Content.ReadAsStringAsync());
             foreach (Booking b in bookingList)
             {
@@ -393,7 +397,7 @@ namespace booking_facilities.Controllers
                 return NotFound();
             }
 
-            var response = await apiClient.GetAsync("https://docker2.aberfitness.biz/gatekeeper/api/Users/" + booking.UserId);
+            var response = await apiClient.GetAsync(AppConfig.GetValue<string>("GatekeeperUrl") + "api/Users/" + booking.UserId);
             var json = await response.Content.ReadAsStringAsync();
             dynamic data = JObject.Parse(json);
             booking.UserId = data.email;
